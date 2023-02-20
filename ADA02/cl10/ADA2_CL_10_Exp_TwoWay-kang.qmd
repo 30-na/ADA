@@ -100,10 +100,10 @@ mandible lengths across groups.
 ```{R, fig.height = 5, fig.width = 8}
 # Calculate the cell means for each (sex, species) combination
 # Group means
-kang_mean     <- dat_kang %>%                            summarise(m = mean(ml))
-kang_mean_x   <- dat_kang %>% group_by(sex)          %>% summarise(m = mean(ml)) %>% ungroup()
-kang_mean_s   <- dat_kang %>% group_by(species)      %>% summarise(m = mean(ml)) %>% ungroup()
-kang_mean_xs  <- dat_kang %>% group_by(sex, species) %>% summarise(m = mean(ml)) %>% ungroup()
+kang_mean     <- dat_kang %>%                            dplyr::summarise(m = mean(ml))
+kang_mean_x   <- dat_kang %>% group_by(sex)          %>% dplyr::summarise(m = mean(ml)) %>% ungroup()
+kang_mean_s   <- dat_kang %>% group_by(species)      %>% dplyr::summarise(m = mean(ml)) %>% ungroup()
+kang_mean_xs  <- dat_kang %>% group_by(sex, species) %>% dplyr::summarise(m = mean(ml)) %>% ungroup()
 
 kang_mean
 kang_mean_x
@@ -113,8 +113,8 @@ kang_mean_xs
 # Interaction plots, ggplot
 library(ggplot2)
 p1 <- ggplot(dat_kang, aes(x = sex, y = ml, colour = species))
-p1 <- p1 + geom_hline(aes(yintercept = 0), colour = "black"
-                  , linetype = "solid", size = 0.2, alpha = 0.3)
+#p1 <- p1 + geom_hline(aes(yintercept = 0), colour = "black"
+#                  , linetype = "solid", size = 0.2, alpha = 0.3)
 p1 <- p1 + geom_boxplot(alpha = 0.5, outlier.size=0.1)
 p1 <- p1 + geom_point(data = kang_mean_xs, aes(y = m), size = 4)
 p1 <- p1 + geom_line(data = kang_mean_xs, aes(y = m, group = species), size = 1.5)
@@ -122,8 +122,8 @@ p1 <- p1 + labs(title = "Kangaroo interaction plot, species by sex")
 #print(p1)
 
 p2 <- ggplot(dat_kang, aes(x = species, y = ml, colour = sex))
-p2 <- p2 + geom_hline(aes(yintercept = 0), colour = "black"
-                  , linetype = "solid", size = 0.2, alpha = 0.3)
+#p2 <- p2 + geom_hline(aes(yintercept = 0), colour = "black"
+#                  , linetype = "solid", size = 0.2, alpha = 0.3)
 p2 <- p2 + geom_boxplot(alpha = 0.5, outlier.size=0.1)
 p2 <- p2 + geom_point(data = kang_mean_xs, aes(y = m), size = 4)
 p2 <- p2 + geom_line(data = kang_mean_xs, aes(y = m, group = sex), size = 1.5)
@@ -139,12 +139,9 @@ grid.arrange(grobs = list(p1, p2), nrow=1, top="Kangaroo crestwidth plots")
 ### Solution
 
 [answer]
-
-[answer]
+It seeems in average
 The First plot: The distribution between groups in terms of spread is not very different and we have roughly a symmetric distribution for all groups. the means for male sex are lower in compare to female groups. the Mfm and Mg species are about the same but the Mff species are a bit larger.  
 The second plot: males sex group have smaller ml in compare to female.In the male group, the Mfm and Mg species have the same ml size but ml increase in Mff species. In female group, Mg species have the lowest ml size, the ml size increase a bit in Mfm species and Mff have the largest ml size in compare the other two species. The increase of ml size between Mfm and Mff is parallel so there is no interaction, however there may be interaction in Mg and Mfm species  
-
-
 
 
 
