@@ -1,6 +1,6 @@
 ---
 title:  "ADA2: Class 11, Chs 05 and 07, writing and plotting model equations"
-author: Your Name
+author: Sina Mokhtar
 date:   last-modified
 description: |
   [Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12,
@@ -119,16 +119,9 @@ First determine what each sex and species number is.
 The equation looks like: $\hat{y} = [\text{terms}]$.
 
 ### Solution
+$\widehat{cw} = 97.784 + 24.673 * I(sex = F) + 4.991 * I(species = Mfm) + 34.280 * I(species = Mff)$
 
-
-\
-
-\
-
-\
-
-\
-
+Intercept represents Sex=M and Species = Mg.
 
 ## __(2 p)__ Separate model equations.
 
@@ -138,17 +131,17 @@ For each combination of species and sex, write the model.
 
 Sex | Species | Fitted Model
 -|-|-
-M | Mg   | $\hat{y}=$
+M | Mg   | $\hat{y}=97.784$
 \ | |
-M | Mfm  | $\hat{y}=$
+M | Mfm  | $\hat{y}=97.784 + 4.991 = 102.775$
 \ | |
-M | Mff  | $\hat{y}=$
+M | Mff  | $\hat{y}=97.784 + 34.280 = 132.064$
 \ | |
-F | Mg   | $\hat{y}=$
+F | Mg   | $\hat{y}=97.784 + 24.673 = 122.457$
 \ | |
-F | Mfm  | $\hat{y}=$
+F | Mfm  | $\hat{y}=97.784 + 24.673 + 4.991 = 127.448$
 \ | |
-F | Mff  | $\hat{y}=$
+F | Mff  | $\hat{y}=97.784 + 24.673 + 34.280 = 156.737$
 
 
 
@@ -221,14 +214,18 @@ The equation looks like: $\hat{y} = [\text{terms}]$.
 ### Solution
 
 
-\
+$\widehat{score} = 5.42706 
+- 0.01321 * Age 
++ 2.78490 * I(Rank = 1) 
+- 1.22343 * I(Rank = 2)\\
+- 0.07247 * I(Rank = 1) * Age
++ 0.03022 * I(Rank = 2) * Age
+$
 
-\
 
-\
 
-\
 
+Intercept represents Rank = 0(Assistant Prof) and age  = 0.
 
 
 ## __(2 p)__ Separate model equations.
@@ -239,11 +236,11 @@ There's a separate regression line for each faculty rank.
 
 Rank | | Fitted Model
 -|-|-
-1 | | $\hat{y}=$
+1 FULL | | $\hat{y}= (5.42706+ 2.78490) + (- 0.01321 - 0.07247)* Age$
 \ | |
-2 | | $\hat{y}=$
+2 Assoc | | $\hat{y}= (5.42706- 1.22343)  + (0.03022 - 0.01321)  * Age$
 \ | |
-3 | | $\hat{y}=$
+3 Assis | | $\hat{y}= 5.42706 - 0.01321 * Age$
 
 
 
