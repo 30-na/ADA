@@ -1,0 +1,276 @@
+---
+title:  "ADA2: Class 11, Chs 05 and 07, writing and plotting model equations"
+author: Your Name
+date:   last-modified
+description: |
+  [Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12,
+  Stat 428/528, Spring 2023, Prof. Erik Erhardt, UNM
+format:
+  html:
+    theme:            litera
+    highlight-style:  atom-one
+    page-layout:      full      # article, full   # https://quarto.org/docs/output-formats/page-layout.html
+    toc:              true
+    toc-location:     body  # body, left, right
+    number-sections:  false
+    self-contained:         false     # !!! this can cause a render error
+    code-overflow:          scroll    # scroll, wrap
+    code-block-bg:          true
+    code-block-border-left: "#30B0E0"
+    code-copy:              false     # true, false, hover a copy buttom in top-right of code block
+fig-width:                  6
+fig-height:                 4
+fig-align:                  center    # default, left, right, or center
+execute: # https://quarto.org/docs/computations/execution-options.html, https://quarto.org/docs/computations/r.html
+  cache:    false   # false, true
+  echo:     true    # true, false  Include the source code in output
+  warning:  true    # true, false  Include warnings in the output.
+  error:    true    # true, false  Include errors in the output (note that this implies that errors executing code will not halt processing of the document).
+---
+
+**This assignment is to be printed and hand-written.**
+
+In my opinion, some of the most important skills in modeling are:
+
+* writing down a model using indicator variables,
+* interpretting model coefficients,
+* solving for the predicted value for any combination of predictors, and
+* plotting the fitted model.
+
+This assignment applies these skills to two-way factor models (ADA2 Chapter 5)
+  and ANCOVA models with one factor and one continuous predictor (ADA2 Chapter 7).
+
+
+# 1. Two-way main-effect model: Kangaroo crest width
+
+Recall these data, results, and the model from Week 05.
+
+```{R}
+library(erikmisc)
+library(tidyverse)
+
+kang <-
+  read_csv(
+    "ADA2_CL_09_kang.csv"
+  , na = c("", ".")
+  ) %>%
+  # subset only our columns of interest
+  select(
+    sex, species, cw
+  ) %>%
+  # make dose a factor variable and label the levels
+  mutate(
+    sex     = factor(sex    , labels = c("M","F"))
+  , species = factor(species, labels = c("Mg", "Mfm", "Mff"))
+  )
+
+str(kang)
+```
+
+```{R, fig.height = 5, fig.width = 8, echo = FALSE}
+# Calculate the cell means for each (sex, species) combination
+# Group means
+kang_mean_xs  <- kang %>% group_by(sex, species) %>% summarise(m = mean(cw)) %>% ungroup()
+kang_mean_xs
+
+# Interaction plots, ggplot
+library(ggplot2)
+p1 <- ggplot(kang, aes(x = sex, y = cw, colour = species))
+p1 <- p1 + geom_hline(aes(yintercept = 0), colour = "black"
+                  , linetype = "solid", size = 0.2, alpha = 0.3)
+p1 <- p1 + scale_y_continuous(limits = c(90, 170), breaks = seq(90, 170, by=10))
+p1 <- p1 + geom_boxplot(alpha = 0.5, outlier.size=0.1)
+p1 <- p1 + geom_point(data = kang_mean_xs, aes(y = m), size = 4)
+p1 <- p1 + geom_line(data = kang_mean_xs, aes(y = m, group = species), size = 1.5)
+p1 <- p1 + theme_bw()
+p1 <- p1 + labs(title = "Kangaroo interaction plot, species by sex")
+#print(p1)
+
+p2 <- ggplot(kang, aes(x = species, y = cw, colour = sex))
+p2 <- p2 + geom_hline(aes(yintercept = 0), colour = "black"
+                  , linetype = "solid", size = 0.2, alpha = 0.3)
+p2 <- p2 + scale_y_continuous(limits = c(90, 170), breaks = seq(90, 170, by=10))
+p2 <- p2 + geom_boxplot(alpha = 0.5, outlier.size=0.1)
+p2 <- p2 + geom_point(data = kang_mean_xs, aes(y = m), size = 4)
+p2 <- p2 + geom_line(data = kang_mean_xs, aes(y = m, group = sex), size = 1.5)
+p2 <- p2 + theme_bw()
+p2 <- p2 + labs(title = "Kangaroo interaction plot, sex by species")
+#print(p2)
+
+library(gridExtra)
+grid.arrange(grobs = list(p1, p2), nrow=1, top="Kangaroo crestwidth plots")
+```
+
+```{R}
+lm_cw_x_s <-
+  lm(
+    cw ~ sex + species
+  , data = kang
+  )
+# parameter estimate table
+summary(lm_cw_x_s)
+```
+
+## __(3 p)__ Write the fitted model equation.
+
+Use the parameter estimate table above to write out the fitted model equation.
+Use indicator function notation for categorical variables.
+First determine what each sex and species number is.
+The equation looks like: $\hat{y} = [\text{terms}]$.
+
+### Solution
+
+
+\
+
+\
+
+\
+
+\
+
+
+## __(2 p)__ Separate model equations.
+
+For each combination of species and sex, write the model.
+
+### Solution
+
+Sex | Species | Fitted Model
+-|-|-
+M | Mg   | $\hat{y}=$
+\ | |
+M | Mfm  | $\hat{y}=$
+\ | |
+M | Mff  | $\hat{y}=$
+\ | |
+F | Mg   | $\hat{y}=$
+\ | |
+F | Mfm  | $\hat{y}=$
+\ | |
+F | Mff  | $\hat{y}=$
+
+
+
+## __(0 p)__ Plot the observed and fitted values.
+
+Use symbols/colors/labels to distinguish between the observed and predicted
+values and clearly identify the species/sex combinations.
+Use the minimum about of labeling to make it clear.
+
+### Solution
+
+COVID-19 Year, no hand plotting :(
+
+```{R, fig.height = 5, fig.width = 8, echo = FALSE}
+# Interaction plots, ggplot
+library(ggplot2)
+p2 <- ggplot(kang, aes(x = species, y = cw, colour = sex))
+p2 <- p2 + scale_y_continuous(limits = c(90, 170), breaks = seq(90, 170, by=10))
+#p2 <- p2 + geom_hline(aes(yintercept = 0), colour = "black"
+#                  , linetype = "solid", size = 0.2, alpha = 0.3)
+#p2 <- p2 + labs(title = "Kangaroo interaction plot, sex by species")
+#print(p2)
+p2 <- p2 + theme_bw()
+library(gridExtra)
+grid.arrange(grobs = list(p2, p2), nrow=1, top="Kangaroo crestwidth plots (an extra in case you need to redo it)")
+```
+
+
+
+# 2. ANCOVA model: Faculty political tolerances
+
+A political scientist developed a questionnaire to determine political
+tolerance scores for a random sample of faculty members at her university.
+She wanted to compare mean scores adjusted for the age for each of the
+three categories: full professors (coded 1), associate professors (coded 2),
+and assistant professors (coded 3). The data are given below. Note the higher
+the score, the more tolerant the individual.
+
+Below we will fit and interpret a model to assess the dependence of tolerance
+score on age and rank.
+(We will assess model fit in a later assignment.)
+
+```{R}
+tolerate <-
+  read_csv("ADA2_CL_12_tolerate.csv") %>%
+  mutate(
+    rank = factor(rank)
+    # set "3" as baseline level
+  , rank = relevel(rank, "3")
+  )
+str(tolerate)
+```
+
+## __(3 p)__ Write the fitted model equation.
+
+Note in the code what the baseline rank is.
+```{R}
+lm_s_a_r_ar <-
+  lm(
+    score ~ age * rank
+  , data = tolerate
+  )
+summary(lm_s_a_r_ar)
+```
+
+Use the parameter estimate table above to write out the fitted model equation.
+Use indicator function notation for categorical variables.
+The equation looks like: $\hat{y} = [\text{terms}]$.
+
+### Solution
+
+
+\
+
+\
+
+\
+
+\
+
+
+
+## __(2 p)__ Separate model equations.
+
+There's a separate regression line for each faculty rank.
+
+### Solution
+
+Rank | | Fitted Model
+-|-|-
+1 | | $\hat{y}=$
+\ | |
+2 | | $\hat{y}=$
+\ | |
+3 | | $\hat{y}=$
+
+
+
+## __(0 p)__ Plot the fitted regression lines.
+
+Use symbols/colors/labels to distinguish between the observed and predicted
+values and clearly identify the rank.
+Use the minimum about of labeling to make it clear.
+I recommend plotting each line by evaluating two points then connecting them,
+  for example, by evaluating at age=0 and age=50.
+
+### Solution
+
+COVID-19 Year, no hand plotting :(
+
+```{R, fig.height = 5, fig.width = 8, echo = FALSE}
+library(ggplot2)
+p <- ggplot(tolerate, aes(x = age, y = score, colour = rank, label = rank))
+p <- p + geom_text(size=4)
+p <- p + expand_limits(x = 0, y = 8.5)
+#p <- p + geom_smooth(method = lm, alpha=0.15, se = FALSE)
+p <- p + labs(title="Tolerance score data")
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+#print(p)
+library(gridExtra)
+grid.arrange(grobs = list(p, p), nrow=1, top="Faculty tolerance (an extra in case you need to redo it)")
+```
+
+

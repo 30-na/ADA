@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Your Name">
+<meta name="dcterms.date" content="2022-12-16">
+<meta name="description" content="[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM">
+
+<title>ADA2: Class 11, Chs 05 and 07, writing and plotting model equations</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/quarto.js"></script>
+<script src="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/popper.min.js"></script>
+<script src="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ADA2_CL_11_ModelEquationsPlots_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ADA2_CL_11_ModelEquationsPlots_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ADA2_CL_11_ModelEquationsPlots_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ADA2_CL_11_ModelEquationsPlots_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">ADA2: Class 11, Chs 05 and 07, writing and plotting model equations</h1>
+</div>
+
+<div>
+  <div class="description">
+    <p>[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Your Name </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 16, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#two-way-main-effect-model-kangaroo-crest-width" id="toc-two-way-main-effect-model-kangaroo-crest-width">1. Two-way main-effect model: Kangaroo crest width</a>
+  <ul>
+  <li><a href="#p-write-the-fitted-model-equation." id="toc-p-write-the-fitted-model-equation."><strong>(3 p)</strong> Write the fitted model equation.</a>
+  <ul>
+  <li><a href="#solution" id="toc-solution">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-separate-model-equations." id="toc-p-separate-model-equations."><strong>(2 p)</strong> Separate model equations.</a>
+  <ul>
+  <li><a href="#solution-1" id="toc-solution-1">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-plot-the-observed-and-fitted-values." id="toc-p-plot-the-observed-and-fitted-values."><strong>(0 p)</strong> Plot the observed and fitted values.</a>
+  <ul>
+  <li><a href="#solution-2" id="toc-solution-2">Solution</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#ancova-model-faculty-political-tolerances" id="toc-ancova-model-faculty-political-tolerances">2. ANCOVA model: Faculty political tolerances</a>
+  <ul>
+  <li><a href="#p-write-the-fitted-model-equation.-1" id="toc-p-write-the-fitted-model-equation.-1"><strong>(3 p)</strong> Write the fitted model equation.</a>
+  <ul>
+  <li><a href="#solution-3" id="toc-solution-3">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-separate-model-equations.-1" id="toc-p-separate-model-equations.-1"><strong>(2 p)</strong> Separate model equations.</a>
+  <ul>
+  <li><a href="#solution-4" id="toc-solution-4">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-plot-the-fitted-regression-lines." id="toc-p-plot-the-fitted-regression-lines."><strong>(0 p)</strong> Plot the fitted regression lines.</a>
+  <ul>
+  <li><a href="#solution-5" id="toc-solution-5">Solution</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+<p><strong>This assignment is to be printed and hand-written.</strong></p>
+<p>In my opinion, some of the most important skills in modeling are:</p>
+<ul>
+<li>writing down a model using indicator variables,</li>
+<li>interpretting model coefficients,</li>
+<li>solving for the predicted value for any combination of predictors, and</li>
+<li>plotting the fitted model.</li>
+</ul>
+<p>This assignment applies these skills to two-way factor models (ADA2 Chapter 5) and ANCOVA models with one factor and one continuous predictor (ADA2 Chapter 7).</p>
+<section id="two-way-main-effect-model-kangaroo-crest-width" class="level1">
+<h1>1. Two-way main-effect model: Kangaroo crest width</h1>
+<p>Recall these data, results, and the model from Week 05.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(erikmisc)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── erikmisc 0.1.18 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ tibble 3.1.8      ✔ dplyr  1.0.10</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ─────────────────────────────────────────── erikmisc_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>erikmisc, solving common complex data analysis workflows
+  by Dr. Erik Barry Erhardt &lt;erik@StatAcumen.com&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages
+───────────────────────────────────────
+tidyverse 1.3.2 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ ggplot2 3.4.0     ✔ purrr   0.3.5
+✔ tidyr   1.2.1     ✔ stringr 1.5.0
+✔ readr   2.1.3     ✔ forcats 0.5.2
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>kang <span class="ot">&lt;-</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ADA2_CL_09_kang.csv"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"."</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># subset only our columns of interest</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    sex, species, cw</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># make dose a factor variable and label the levels</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">sex     =</span> <span class="fu">factor</span>(sex    , <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"M"</span>,<span class="st">"F"</span>))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">species =</span> <span class="fu">factor</span>(species, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Mg"</span>, <span class="st">"Mfm"</span>, <span class="st">"Mff"</span>))</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 148 Columns: 11
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (11): sex, species, pow, rw, sopd, cw, ifl, ml, mw, md, arh
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(kang)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [148 × 3] (S3: tbl_df/tbl/data.frame)
+ $ sex    : Factor w/ 2 levels "M","F": 1 1 1 1 1 1 1 1 1 1 ...
+ $ species: Factor w/ 3 levels "Mg","Mfm","Mff": 1 1 1 1 1 1 1 1 1 1 ...
+ $ cw     : num [1:148] 153 141 144 116 120 188 149 128 151 103 ...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'sex'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  sex   species     m
+  &lt;fct&gt; &lt;fct&gt;   &lt;dbl&gt;
+1 M     Mg       103.
+2 M     Mfm      102.
+3 M     Mff      128.
+4 F     Mg       117.
+5 F     Mfm      128.
+6 F     Mff      161 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'gridExtra'
+
+The following object is masked from 'package:dplyr':
+
+    combine</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 51 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 148 rows containing missing values (`geom_hline()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 51 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 148 rows containing missing values (`geom_hline()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_11_ModelEquationsPlots_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lm_cw_x_s <span class="ot">&lt;-</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    cw <span class="sc">~</span> sex <span class="sc">+</span> species</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> kang</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># parameter estimate table</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_cw_x_s)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = cw ~ sex + species, data = kang)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-94.456 -19.746   1.553  23.478  90.216 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   97.784      6.039  16.193  &lt; 2e-16 ***
+sexF          24.673      6.070   4.064 7.89e-05 ***
+speciesMfm     4.991      7.460   0.669    0.505    
+speciesMff    34.280      7.383   4.643 7.66e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 36.91 on 144 degrees of freedom
+Multiple R-squared:  0.2229,    Adjusted R-squared:  0.2067 
+F-statistic: 13.77 on 3 and 144 DF,  p-value: 6.057e-08</code></pre>
+</div>
+</div>
+<section id="p-write-the-fitted-model-equation." class="level2">
+<h2 class="anchored" data-anchor-id="p-write-the-fitted-model-equation."><strong>(3 p)</strong> Write the fitted model equation.</h2>
+<p>Use the parameter estimate table above to write out the fitted model equation. Use indicator function notation for categorical variables. First determine what each sex and species number is. The equation looks like: <span class="math inline">\(\hat{y} = [\text{terms}]\)</span>.</p>
+<section id="solution" class="level3">
+<h3 class="anchored" data-anchor-id="solution">Solution</h3>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+</section>
+</section>
+<section id="p-separate-model-equations." class="level2">
+<h2 class="anchored" data-anchor-id="p-separate-model-equations."><strong>(2 p)</strong> Separate model equations.</h2>
+<p>For each combination of species and sex, write the model.</p>
+<section id="solution-1" class="level3">
+<h3 class="anchored" data-anchor-id="solution-1">Solution</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Sex</th>
+<th>Species</th>
+<th>Fitted Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M</td>
+<td>Mg</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>M</td>
+<td>Mfm</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>M</td>
+<td>Mff</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>F</td>
+<td>Mg</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>F</td>
+<td>Mfm</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>F</td>
+<td>Mff</td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="p-plot-the-observed-and-fitted-values." class="level2">
+<h2 class="anchored" data-anchor-id="p-plot-the-observed-and-fitted-values."><strong>(0 p)</strong> Plot the observed and fitted values.</h2>
+<p>Use symbols/colors/labels to distinguish between the observed and predicted values and clearly identify the species/sex combinations. Use the minimum about of labeling to make it clear.</p>
+<section id="solution-2" class="level3">
+<h3 class="anchored" data-anchor-id="solution-2">Solution</h3>
+<p>COVID-19 Year, no hand plotting :(</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="ADA2_CL_11_ModelEquationsPlots_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="ancova-model-faculty-political-tolerances" class="level1">
+<h1>2. ANCOVA model: Faculty political tolerances</h1>
+<p>A political scientist developed a questionnaire to determine political tolerance scores for a random sample of faculty members at her university. She wanted to compare mean scores adjusted for the age for each of the three categories: full professors (coded 1), associate professors (coded 2), and assistant professors (coded 3). The data are given below. Note the higher the score, the more tolerant the individual.</p>
+<p>Below we will fit and interpret a model to assess the dependence of tolerance score on age and rank. (We will assess model fit in a later assignment.)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tolerate <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"ADA2_CL_12_tolerate.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rank =</span> <span class="fu">factor</span>(rank)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># set "3" as baseline level</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">rank =</span> <span class="fu">relevel</span>(rank, <span class="st">"3"</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 30 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (3): score, age, rank
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(tolerate)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [30 × 3] (S3: tbl_df/tbl/data.frame)
+ $ score: num [1:30] 3.03 4.31 5.09 3.71 5.29 2.7 2.7 4.02 5.52 4.62 ...
+ $ age  : num [1:30] 65 47 49 41 40 61 52 45 41 39 ...
+ $ rank : Factor w/ 3 levels "3","1","2": 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
+</div>
+</div>
+<section id="p-write-the-fitted-model-equation.-1" class="level2">
+<h2 class="anchored" data-anchor-id="p-write-the-fitted-model-equation.-1"><strong>(3 p)</strong> Write the fitted model equation.</h2>
+<p>Note in the code what the baseline rank is.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>lm_s_a_r_ar <span class="ot">&lt;-</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    score <span class="sc">~</span> age <span class="sc">*</span> rank</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> tolerate</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_s_a_r_ar)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = score ~ age * rank, data = tolerate)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.34746 -0.28793  0.01405  0.36653  1.07669 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  5.42706    0.98483   5.511 1.15e-05 ***
+age         -0.01321    0.02948  -0.448   0.6580    
+rank1        2.78490    1.51591   1.837   0.0786 .  
+rank2       -1.22343    1.50993  -0.810   0.4258    
+age:rank1   -0.07247    0.03779  -1.918   0.0671 .  
+age:rank2    0.03022    0.04165   0.726   0.4751    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6378 on 24 degrees of freedom
+Multiple R-squared:  0.5112,    Adjusted R-squared:  0.4093 
+F-statistic:  5.02 on 5 and 24 DF,  p-value: 0.002748</code></pre>
+</div>
+</div>
+<p>Use the parameter estimate table above to write out the fitted model equation. Use indicator function notation for categorical variables. The equation looks like: <span class="math inline">\(\hat{y} = [\text{terms}]\)</span>.</p>
+<section id="solution-3" class="level3">
+<h3 class="anchored" data-anchor-id="solution-3">Solution</h3>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+<p><br>
+</p>
+</section>
+</section>
+<section id="p-separate-model-equations.-1" class="level2">
+<h2 class="anchored" data-anchor-id="p-separate-model-equations.-1"><strong>(2 p)</strong> Separate model equations.</h2>
+<p>There’s a separate regression line for each faculty rank.</p>
+<section id="solution-4" class="level3">
+<h3 class="anchored" data-anchor-id="solution-4">Solution</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Rank</th>
+<th></th>
+<th>Fitted Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td></td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td></td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+<tr class="even">
+<td>\</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td></td>
+<td><span class="math inline">\(\hat{y}=\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="p-plot-the-fitted-regression-lines." class="level2">
+<h2 class="anchored" data-anchor-id="p-plot-the-fitted-regression-lines."><strong>(0 p)</strong> Plot the fitted regression lines.</h2>
+<p>Use symbols/colors/labels to distinguish between the observed and predicted values and clearly identify the rank. Use the minimum about of labeling to make it clear. I recommend plotting each line by evaluating two points then connecting them, for example, by evaluating at age=0 and age=50.</p>
+<section id="solution-5" class="level3">
+<h3 class="anchored" data-anchor-id="solution-5">Solution</h3>
+<p>COVID-19 Year, no hand plotting :(</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="ADA2_CL_11_ModelEquationsPlots_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
