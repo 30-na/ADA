@@ -137,11 +137,8 @@ grid.arrange(grobs = list(p1, p2), nrow=1, top="Kangaroo crestwidth plots")
 
 
 ### Solution
-
-[answer]
-It seeems in average
-The First plot: The distribution between groups in terms of spread is not very different and we have roughly a symmetric distribution for all groups. the means for male sex are lower in compare to female groups. the Mfm and Mg species are about the same but the Mff species are a bit larger.  
-The second plot: males sex group have smaller ml in compare to female.In the male group, the Mfm and Mg species have the same ml size but ml increase in Mff species. In female group, Mg species have the lowest ml size, the ml size increase a bit in Mfm species and Mff have the largest ml size in compare the other two species. The increase of ml size between Mfm and Mff is parallel so there is no interaction, however there may be interaction in Mg and Mfm species  
+he First plot: The distribution between groups in terms of spread is not very different and we have roughly a symmetric distribution for all groups and roughly same variance. 
+There is a big difference in ml size between male and female in MFF group, but there is not a big different between between two sex in MG and MFM group. It seems there is an interaction between sex and in mff species group.
 
 
 
@@ -153,8 +150,8 @@ Do the lines for each group seem to be very different from parallel?
 
 [answer]
 
+yes it seems there is an interaction between sex and in mff species group.
 
-No the lines seems parallel however there may be a bit interaction between Mfm and Mg groups. 
 
 
 
@@ -168,7 +165,7 @@ No the lines seems parallel however there may be a bit interaction between Mfm a
 ```{R}
 lm_ml_x_s_xs <-
   lm(
-    ml ~ sex * species
+    ml ~ sex + species + sex:species
   , data = dat_kang
   , contrasts = list(sex = contr.sum, species = contr.sum)
   )
@@ -191,9 +188,8 @@ Recall that we assume that the full model is correct before we perform model red
 e_plot_lm_diagostics(lm_ml_x_s_xs)
 ```
 
-The residuals are roughly distributed normal based on QQplot. there are no significant outlier and the variances looks constant in all groups. based on box-cox plot we do not need transformation. 
-
-
+The residuals are roughly distributed normal based on QQplot. there are no significant outlier. the distribution of data in male group is wider in compare to female but the this difference is not big. There is not enough evidence that we can tell variance is not constant between all groups. based on box-cox plot we do not need transformation. in residuals vs index we can see an structure, because the data have been sorted by sex and species so this is not interpretable. 
+the assumptions are met.
 
 ## __(3 p)__ ANOVA table, test for interaction and main effects
 
@@ -210,11 +206,7 @@ library(car)
 Anova(lm_ml_x_s_xs, type=3)
 ```
 
-the interaction is not significant based on 95% confidence Interval, however the sex and species are both significant. 
-
-
-
-
+The interaction between sex and species is significant based on 95% confidence Interval. 
 
 
 
@@ -229,27 +221,7 @@ Test model assumptions of your final model.
 ### Solution
 
 [answer]
-[answer]
-```{R}
-lm.reduced = lm(
-    ml ~ sex + species
-    , data = dat_kang
-    , contrasts = list(sex = contr.sum, species = contr.sum)
-  )
-```
-
-```{R, fig.height = 3, fig.width = 10}
-# plot diagnostics
-e_plot_lm_diagostics(lm.reduced)
-#hist(lm.reduced$residuals)
-```
-```{R}
-Anova(lm.reduced, type=3)
-```
-
-The residuals are roughly distributed normal based on QQplot (there is a little bit left skewness, but it is not that much severe). there are no significant outlier and the variances looks constant in all groups. based on box-cox plot we do not need transformation. The both main effects are significant. 
-
-
+The full model is final model because the interaction is significant and the assumptions are met.
 
 
 ## __(2 p)__ Summarize the differences
@@ -308,10 +280,10 @@ Please refer to the Chapter 5 section named __`emmeans` and Bonferroni correctio
 
 [answer]
 
-```{R, fig.height = 2, fig.width = 6}
+```{R, fig.height = 3, fig.width = 6}
 library(emmeans)
 # Contrasts to perform pairwise comparisons
-cont_kang <- emmeans(lm.reduced, specs = "sex")
+cont_kang <- emmeans(lm_ml_x_s_xs, specs = "sex", by = c("species"))
 # Means and CIs
 cont_kang
 # Pairwise comparisons
@@ -339,7 +311,7 @@ If an arrow from one mean overlaps an arrow from
   (which defaults to "tukey").
 
 ```{R, fig.height = 3, fig.width = 6}
-cont_kang <- emmeans(lm.reduced, specs = "species")
+cont_kang <- emmeans(lm_ml_x_s_xs, specs = "species", by = c("sex"))
 # Means and CIs
 cont_kang
 # Pairwise comparisons
@@ -356,21 +328,8 @@ print(p)
 
 [answer]
 
-There are significant size differences between male and female and females in average are 24.7 unit larger than males. there is also significant differences in size between (Mg vs Mff) and (Mfm vs Mff), but there is not significant difference between (Mg vs Mfm) species.
+There are significant size differences (183.4 units in average) between male and female in mff species. also in male group there is significant difference (107.8 units in average) between mfm and mff species, but there is no significant in females.  
 
-
-```
-Sex       Male    Female
-mean      111       136
-Groups    -----    -----
-
-
-Species   Mg    Mfm  Mff
-mean      110   115  144
-Groups    --------   
-                    ---
-
-```
 
 
 
@@ -379,5 +338,5 @@ Groups    --------
 ### Solution
 
 [answer]
-
+we analized the data to see What effect does sex and species have on the mandible length of a kangaroo skull. we fit a two way anova model and base on the model the interaction was significant. all the model assumptions were met. There are significant size differences between male and female in mff species. also in male group there is significant difference between mfm and mff species.
 
