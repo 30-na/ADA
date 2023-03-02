@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Your Name">
+<meta name="dcterms.date" content="2022-12-16">
+<meta name="description" content="[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM">
+
+<title>ADA2: Class 14, Ch 07b, Analysis of Covariance</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/quarto.js"></script>
+<script src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/popper.min.js"></script>
+<script src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ADA2_CL_14_ANCOVA_AbqHomePrices_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">ADA2: Class 14, Ch 07b, Analysis of Covariance</h1>
+</div>
+
+<div>
+  <div class="description">
+    <p>[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Your Name </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 16, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#ancova-model-albuquerque-nm-87108-house-and-apartment-listing-prices" id="toc-ancova-model-albuquerque-nm-87108-house-and-apartment-listing-prices">ANCOVA model: Albuquerque NM 87108, House and Apartment listing prices</a>
+  <ul>
+  <li><a href="#unusual-assignment-not-top-down-but-up-down-up-down" id="toc-unusual-assignment-not-top-down-but-up-down-up-down">Unusual assignment, not top-down, but up-down-up-down</a>
+  <ul>
+  <li><a href="#keep-a-record-of-your-decisions" id="toc-keep-a-record-of-your-decisions">Keep a record of your decisions</a></li>
+  </ul></li>
+  <li><a href="#p-step-1-restrict-data-to-typical-dwellings" id="toc-p-step-1-restrict-data-to-typical-dwellings"><strong>(2 p)</strong> (Step 1) Restrict data to “typical” dwellings</a></li>
+  <li><a href="#p-step-3-transform-response-if-necessary." id="toc-p-step-3-transform-response-if-necessary."><strong>(2 p)</strong> (Step 3) Transform response, if necessary.</a>
+  <ul>
+  <li><a href="#solution" id="toc-solution">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-step-4-remove-extremely-influential-observations." id="toc-p-step-4-remove-extremely-influential-observations."><strong>(2 p)</strong> (Step 4) Remove extremely influential observations.</a></li>
+  <li><a href="#subset-data-for-model-building-and-prediction" id="toc-subset-data-for-model-building-and-prediction">Subset data for model building and prediction</a>
+  <ul>
+  <li><a href="#solution-1" id="toc-solution-1">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-step-2-fit-full-two-way-interaction-model." id="toc-p-step-2-fit-full-two-way-interaction-model."><strong>(2 p)</strong> (Step 2) Fit full two-way interaction model.</a>
+  <ul>
+  <li><a href="#solution-2" id="toc-solution-2">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-step-5-model-selection-check-model-assumptions." id="toc-p-step-5-model-selection-check-model-assumptions."><strong>(2 p)</strong> (Step 5) Model selection, check model assumptions.</a>
+  <ul>
+  <li><a href="#solution-3" id="toc-solution-3">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-step-6-plot-final-model-interpret-coefficients." id="toc-p-step-6-plot-final-model-interpret-coefficients."><strong>(4 p)</strong> (Step 6) Plot final model, interpret coefficients.</a>
+  <ul>
+  <li><a href="#solution-4" id="toc-solution-4">Solution</a></li>
+  </ul></li>
+  <li><a href="#p-step-7-transform-predictors." id="toc-p-step-7-transform-predictors."><strong>(2 p)</strong> (Step 7) Transform predictors.</a></li>
+  <li><a href="#p-step-8-predict-new-observations-interpret-models-predictive-ability." id="toc-p-step-8-predict-new-observations-interpret-models-predictive-ability."><strong>(4 p)</strong> (Step 8) Predict new observations, interpret model’s predictive ability.</a>
+  <ul>
+  <li><a href="#solution-5" id="toc-solution-5">Solution</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+<p>This is a challenging dataset, in part because it’s real and messy. I will guide you through a simplified sensible analysis, but other models are possible.</p>
+<p><em>Note that I needed to set <code>cache=FALSE</code> to assure all output was updated.</em></p>
+<section id="ancova-model-albuquerque-nm-87108-house-and-apartment-listing-prices" class="level1">
+<h1>ANCOVA model: Albuquerque NM 87108, House and Apartment listing prices</h1>
+<p>Prof Erhardt constructed a dataset of listing prices for dwellings (homes and apartments) for sale from <a href="http://www.zillow.com/homes/for_sale/Albuquerque-NM-87108/95303_rid/any_days/35.095087-106.52167835.035021-106.633258_rect/13_zm/0_mmm/">Zillow.com</a> on Feb 26, 2016 at 1 PM for Albuquerque NM 87108. In this assignment we’ll develop a model to help understand which qualities that contribute to a <strong>typical dwelling’s listing price</strong>. We will then also predict the listing prices of new listings posted on the following day, Feb 27, 2016 by 2 PM.</p>
+<p>Because we want to model a <em>typical dwelling</em>, it is completely reasonable to remove “unusual” dwellings from the dataset. Dwellings have a distribution with a <a href="https://en.wikipedia.org/wiki/Long_tail">long tail</a>!</p>
+<section id="unusual-assignment-not-top-down-but-up-down-up-down" class="level2">
+<h2 class="anchored" data-anchor-id="unusual-assignment-not-top-down-but-up-down-up-down">Unusual assignment, not top-down, but up-down-up-down</h2>
+<p>This is an unusual assignment because the workflow of this assignment isn’t top-down; instead, you’ll be scrolling up and down as you make decisions about the data and model you’re fitting. Yes, I have much of the code worked out for you. However, there are data decisions to make early in the code (such as excluding observations, transforming variables, etc.) that depend on the analysis (model checking) later. Think of it as a “choose your own adventure” that I’ve written for you.</p>
+<section id="keep-a-record-of-your-decisions" class="level3">
+<h3 class="anchored" data-anchor-id="keep-a-record-of-your-decisions">Keep a record of your decisions</h3>
+<p>It is always desirable to make your work reproducible, either by someone else or by your future self. For each step you take, keep a diary of (a) what the next minor goal is, (b) what evidence/information you have, (c) what decision you make, and (d) what the outcome was.</p>
+<p>For example, here’s the first couple steps of your diary:</p>
+<ol type="1">
+<li>Include only “typical dwellings”. Based on scatterplot, remove extreme observations. Keep only HOUSE and APARTMENT.</li>
+<li>Exclude a few variables to reduce multicollinearity between predictor variables. Exclude <code>Baths</code> and <code>LotSize</code>.</li>
+<li>etc.</li>
+</ol>
+</section>
+</section>
+<section id="p-step-1-restrict-data-to-typical-dwellings" class="level2">
+<h2 class="anchored" data-anchor-id="p-step-1-restrict-data-to-typical-dwellings"><strong>(2 p)</strong> (Step 1) Restrict data to “typical” dwellings</h2>
+<p><strong>Step 1:</strong> After looking at the scatterplot below, identify what you consider to be a “typical dwelling” and exclude observations far from that range. For example, there are only a couple <code>TypeSale</code> that are common enough to model; remember to run <code>factor()</code> again to remove factor levels that no longer appear.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(erikmisc)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── erikmisc 0.1.18 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ tibble 3.1.8      ✔ dplyr  1.0.10</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ─────────────────────────────────────────── erikmisc_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>erikmisc, solving common complex data analysis workflows
+  by Dr. Erik Barry Erhardt &lt;erik@StatAcumen.com&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages
+───────────────────────────────────────
+tidyverse 1.3.2 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ ggplot2 3.4.0     ✔ purrr   0.3.5
+✔ tidyr   1.2.1     ✔ stringr 1.5.0
+✔ readr   2.1.3     ✔ forcats 0.5.2
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, download the data to your computer,</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   save in the same folder as this Rmd file.</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># read the data, skip the first two comment lines of the data file</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"ADA2_CL_14_HomePricesZillow_Abq87108.csv"</span>, <span class="at">skip=</span><span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  , <span class="at">TypeSale =</span> <span class="fu">factor</span>(TypeSale)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># To help scale the intercept to a more reasonable value</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   Scaling the x-variables are sometimes done to the mean of each x.</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># center year at 1900 (negative values are older, -10 is built in 1890)</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">YearBuilt_1900 =</span> YearBuilt <span class="sc">-</span> <span class="dv">1900</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    id, <span class="fu">everything</span>()</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    , <span class="sc">-</span>Address, <span class="sc">-</span>YearBuilt</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 143 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (2): Address, TypeSale
+dbl (7): PriceList, Beds, Baths, Size_sqft, LotSize, YearBuilt, DaysListed
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat_abq)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 9
+     id TypeSale  PriceList  Beds Baths Size_sqft LotSize DaysListed YearBuilt…¹
+  &lt;int&gt; &lt;fct&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
+1     1 HOUSE        186900     3     2      1305    6969          0          54
+2     2 APARTMENT    305000     1     1      2523    6098          0          48
+3     3 APARTMENT    244000     1     1      2816    6098          0          89
+4     4 CONDO        108000     3     2      1137      NA          0          96
+5     5 CONDO         64900     2     1      1000      NA          1          85
+6     6 HOUSE        275000     3     3      2022    6098          1          52
+# … with abbreviated variable name ¹​YearBuilt_1900</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## RETURN HERE TO SUBSET THE DATA</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span>    <span class="co"># (X &lt;= z)  # keep observations where variable X &lt;= value z</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># note, if you remove a level from a categorical variable, then run factor() again</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># these deletions are based only on the scatter plot in order to have</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  "typical" dwellings</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat_abq)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [143 × 9] (S3: tbl_df/tbl/data.frame)
+ $ id            : int [1:143] 1 2 3 4 5 6 7 8 9 10 ...
+ $ TypeSale      : Factor w/ 5 levels "APARTMENT","CONDO",..: 5 1 1 2 2 5 5 4 5 5 ...
+ $ PriceList     : num [1:143] 186900 305000 244000 108000 64900 ...
+ $ Beds          : num [1:143] 3 1 1 3 2 3 2 2 3 3 ...
+ $ Baths         : num [1:143] 2 1 1 2 1 3 1 2 2 2 ...
+ $ Size_sqft     : num [1:143] 1305 2523 2816 1137 1000 ...
+ $ LotSize       : num [1:143] 6969 6098 6098 NA NA ...
+ $ DaysListed    : num [1:143] 0 0 0 0 1 1 1 1 1 2 ...
+ $ YearBuilt_1900: num [1:143] 54 48 89 96 85 52 52 65 58 52 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="p-step-3-transform-response-if-necessary." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-3-transform-response-if-necessary."><strong>(2 p)</strong> (Step 3) Transform response, if necessary.</h2>
+<p><strong>Step 3:</strong> Does the response variable require a transformation? If so, what transformation is recommended from the model diagnostic plots (Box-Cox)?</p>
+<section id="solution" class="level3">
+<h3 class="anchored" data-anchor-id="solution">Solution</h3>
+<p>[answer]</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Price in units of $1000</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> PriceList <span class="sc">/</span> <span class="dv">1000</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># SOLUTION</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>PriceList</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat_abq)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [143 × 9] (S3: tbl_df/tbl/data.frame)
+ $ id            : int [1:143] 1 2 3 4 5 6 7 8 9 10 ...
+ $ TypeSale      : Factor w/ 5 levels "APARTMENT","CONDO",..: 5 1 1 2 2 5 5 4 5 5 ...
+ $ Beds          : num [1:143] 3 1 1 3 2 3 2 2 3 3 ...
+ $ Baths         : num [1:143] 2 1 1 2 1 3 1 2 2 2 ...
+ $ Size_sqft     : num [1:143] 1305 2523 2816 1137 1000 ...
+ $ LotSize       : num [1:143] 6969 6098 6098 NA NA ...
+ $ DaysListed    : num [1:143] 0 0 0 0 1 1 1 1 1 2 ...
+ $ YearBuilt_1900: num [1:143] 54 48 89 96 85 52 52 65 58 52 ...
+ $ PriceListK    : num [1:143] 186.9 305 244 108 64.9 ...</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="p-step-4-remove-extremely-influential-observations." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-4-remove-extremely-influential-observations."><strong>(2 p)</strong> (Step 4) Remove extremely influential observations.</h2>
+<p><strong>Step 4:</strong> The goal is to develop a model that will work well for the typical dwellings. If an observation is highly influential, then it’s unusual.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Remove influential observation</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>   <span class="co"># !(id  %in% c( ... ))</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span></code></pre></div>
+</div>
+</section>
+<section id="subset-data-for-model-building-and-prediction" class="level2">
+<h2 class="anchored" data-anchor-id="subset-data-for-model-building-and-prediction">Subset data for model building and prediction</h2>
+<p>Create a subset of the data for building the model, and another subset for prediction later on.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove observations with NAs</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the data subset we will use to build our model</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>dat_sub <span class="ot">&lt;-</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    DaysListed <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># the data subset we will predict from our model</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>dat_pred <span class="ot">&lt;-</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    DaysListed <span class="sc">==</span> <span class="dv">0</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the prices we hope to predict closely from our model</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK_true =</span> PriceListK</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># set them to NA to predict them later</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  , <span class="at">PriceListK =</span> <span class="cn">NA</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
+<p>Scatterplot of the model-building subset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">, this plot takes a long time if you're repeadly recompiling the document.</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># comment the "print(p)" line so save some time when you're not evaluating this plot.</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'GGally':
+  method from   
+  +.gg   ggplot2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggpairs</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    dat_sub</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mapping =</span> ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">colour =</span> TypeSale, <span class="at">alpha =</span> <span class="fl">0.5</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lower =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"points"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"cor"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#print(p)</span></span></code></pre></div>
+</div>
+<p>There are clearly some unusual observations. Go back to the first code chunk and remove some observations that don’t represent a “typical” dwelling.</p>
+<p>For example, remove these dwellings (in code above):</p>
+<ul>
+<li>Super expensive dwelling</li>
+<li>Dwellings with huge lots</li>
+<li>Dwellings that were listed for years</li>
+<li>Because most dwellings were APARTMENTs and HOUSEs, remove the others (there are only 1 or so of each).</li>
+</ul>
+<p>Discuss the observed correlations or other outstanding features in the data.</p>
+<section id="solution-1" class="level3">
+<h3 class="anchored" data-anchor-id="solution-1">Solution</h3>
+<p>[answer]</p>
+<p>Features of data:</p>
+</section>
+</section>
+<section id="p-step-2-fit-full-two-way-interaction-model." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-2-fit-full-two-way-interaction-model."><strong>(2 p)</strong> (Step 2) Fit full two-way interaction model.</h2>
+<p><em>You’ll revisit this section after each modification of the data above.</em></p>
+<p><strong>Step 2:</strong> Let’s fit the full two-way interaction model and assess the assumptions. However, some of the predictor variables are highly correlated. Recall that the interpretation of a beta coefficient is “the expected increase in the response for a 1-unit increase in <span class="math inline">\(x\)</span> with all other predictors held constant”. It’s hard to hold one variable constant if it’s correlated with another variable you’re increasing. Therefore, we’ll make a decision to retain some variables but not others depending on their correlation values. (In the PCA chapter, we’ll see another strategy.)</p>
+<p>Somewhat arbitrarily, let’s exclude <code>Baths</code> (since highly correlated with <code>Beds</code> and <code>Size_sqft</code>). Let’s also exclude <code>LotSize</code> (since highly correlated with <code>Size_sqft</code>). Modify the code below. Notice that because APARTMENTs don’t have more than 1 Beds or Baths, those interaction terms need to be excluded from the model; I show you how to do this manually using the <code>update()</code> function.</p>
+<p>Note that the formula below <code>y ~ (x1 + x2 + x3)^2</code> expands into all main effects and two-way interactions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## SOLUTION</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lm</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>      PriceListK <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    , <span class="at">data =</span> dat_sub</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#lm_full &lt;-</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  lm(</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  , data = dat_sub</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  )</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  lm_full</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = PriceListK ~ (TypeSale + Beds + Size_sqft + DaysListed + 
+    YearBuilt_1900)^2, data = dat_sub)
+
+Coefficients:
+                             (Intercept)  
+                               2.183e+00  
+               TypeSaleFOR SALE BY OWNER  
+                               1.447e+02  
+                     TypeSaleFORECLOSURE  
+                               2.084e+03  
+                           TypeSaleHOUSE  
+                               2.859e+02  
+                                    Beds  
+                              -1.299e+02  
+                               Size_sqft  
+                               1.445e-01  
+                              DaysListed  
+                              -2.441e-01  
+                          YearBuilt_1900  
+                               3.642e-01  
+          TypeSaleFOR SALE BY OWNER:Beds  
+                                      NA  
+                TypeSaleFORECLOSURE:Beds  
+                              -1.706e+02  
+                      TypeSaleHOUSE:Beds  
+                                      NA  
+     TypeSaleFOR SALE BY OWNER:Size_sqft  
+                                      NA  
+           TypeSaleFORECLOSURE:Size_sqft  
+                               3.828e-01  
+                 TypeSaleHOUSE:Size_sqft  
+                               3.209e-02  
+    TypeSaleFOR SALE BY OWNER:DaysListed  
+                                      NA  
+          TypeSaleFORECLOSURE:DaysListed  
+                              -1.066e+00  
+                TypeSaleHOUSE:DaysListed  
+                               3.068e-01  
+TypeSaleFOR SALE BY OWNER:YearBuilt_1900  
+                                      NA  
+      TypeSaleFORECLOSURE:YearBuilt_1900  
+                              -3.516e+01  
+            TypeSaleHOUSE:YearBuilt_1900  
+                              -5.218e+00  
+                          Beds:Size_sqft  
+                              -4.801e-04  
+                         Beds:DaysListed  
+                              -1.260e-01  
+                     Beds:YearBuilt_1900  
+                               2.629e+00  
+                    Size_sqft:DaysListed  
+                               2.270e-04  
+                Size_sqft:YearBuilt_1900  
+                              -1.584e-03  
+               DaysListed:YearBuilt_1900  
+                              -2.272e-03  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(car)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'car'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    some</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    recode</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in Anova.III.lm(mod, error, singular.ok = singular.ok, ...) : 
+  there are aliased coefficients in the model</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## There isn't a second level of bed or bath to estimate the interaction.</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Therefore, remove those two terms</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>      lm_full</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    , . <span class="sc">~</span> . <span class="sc">-</span> TypeSale<span class="sc">:</span>Beds</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(car)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in Anova.III.lm(mod, error, singular.ok = singular.ok, ...) : 
+  there are aliased coefficients in the model</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#e_plot_lm_diagostics(lm_full)</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co"># List the row numbers with id numbers</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   The row numbers appear in the residual plots.</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   The id number can be used to exclude values in code above.</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>dat_sub <span class="sc">%&gt;%</span> <span class="fu">select</span>(id) <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 114 × 1
+       id
+    &lt;int&gt;
+  1     6
+  2     7
+  3     8
+  4     9
+  5    10
+  6    12
+  7    13
+  8    14
+  9    15
+ 10    17
+ 11    18
+ 12    19
+ 13    20
+ 14    21
+ 15    22
+ 16    24
+ 17    27
+ 18    29
+ 19    30
+ 20    31
+ 21    32
+ 22    33
+ 23    35
+ 24    36
+ 25    37
+ 26    38
+ 27    39
+ 28    40
+ 29    41
+ 30    42
+ 31    45
+ 32    46
+ 33    47
+ 34    48
+ 35    49
+ 36    50
+ 37    51
+ 38    52
+ 39    53
+ 40    54
+ 41    55
+ 42    56
+ 43    57
+ 44    58
+ 45    59
+ 46    60
+ 47    61
+ 48    62
+ 49    64
+ 50    65
+ 51    66
+ 52    67
+ 53    68
+ 54    69
+ 55    70
+ 56    71
+ 57    72
+ 58    77
+ 59    78
+ 60    79
+ 61    80
+ 62    81
+ 63    83
+ 64    84
+ 65    85
+ 66    86
+ 67    87
+ 68    91
+ 69    92
+ 70    93
+ 71    94
+ 72    95
+ 73    96
+ 74    99
+ 75   100
+ 76   101
+ 77   102
+ 78   103
+ 79   104
+ 80   105
+ 81   106
+ 82   108
+ 83   109
+ 84   110
+ 85   111
+ 86   113
+ 87   114
+ 88   115
+ 89   116
+ 90   117
+ 91   119
+ 92   120
+ 93   121
+ 94   122
+ 95   123
+ 96   124
+ 97   125
+ 98   126
+ 99   127
+100   128
+101   129
+102   130
+103   131
+104   132
+105   133
+106   134
+107   135
+108   136
+109   137
+110   138
+111   140
+112   141
+113   142
+114   143</code></pre>
+</div>
+</div>
+<p>After Step 2, interpret the residual plots. What are the primary issues in the original model?</p>
+<section id="solution-2" class="level3">
+<h3 class="anchored" data-anchor-id="solution-2">Solution</h3>
+<p>[answer]</p>
+</section>
+</section>
+<section id="p-step-5-model-selection-check-model-assumptions." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-5-model-selection-check-model-assumptions."><strong>(2 p)</strong> (Step 5) Model selection, check model assumptions.</h2>
+<p>Using <code>step(..., direction="both")</code> with the BIC criterion, perform model selection.</p>
+<section id="solution-3" class="level3">
+<h3 class="anchored" data-anchor-id="solution-3">Solution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="do">## BIC</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># option: test="F" includes additional information</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co">#           for parameter estimate tests that we're familiar with</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># option: for BIC, include k=log(nrow( [data.frame name] ))</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>lm_red_BIC <span class="ot">&lt;-</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step</span>(</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    lm_full</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">direction =</span> <span class="st">"both"</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  , <span class="at">test =</span> <span class="st">"F"</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  , <span class="at">trace =</span> <span class="dv">0</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">k =</span> <span class="fu">log</span>(<span class="fu">nrow</span>(dat_sub))</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>lm_final <span class="ot">&lt;-</span> lm_red_BIC</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co">#e_plot_lm_diagostics(lm_final)</span></span></code></pre></div>
+</div>
+<p>Model assumptions appear to be reasonably met. A few influential observations exist.</p>
+</section>
+</section>
+<section id="p-step-6-plot-final-model-interpret-coefficients." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-6-plot-final-model-interpret-coefficients."><strong>(4 p)</strong> (Step 6) Plot final model, interpret coefficients.</h2>
+<p>If you arrived at the same model I did, then the code below will plot it. Eventually (after Step 7), the fitted model equations will describe the each dwelling <code>TypeSale</code> and interpret the coefficients.</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Anova(lm_final, type=3)</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_final)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = PriceListK ~ TypeSale + Size_sqft + YearBuilt_1900 + 
+    Size_sqft:YearBuilt_1900, data = dat_sub)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-184.16  -41.71   -1.96   28.74  417.46 
+
+Coefficients:
+                            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)               -3.416e+02  9.358e+01  -3.650 0.000407 ***
+TypeSaleFOR SALE BY OWNER  1.160e+02  7.686e+01   1.509 0.134125    
+TypeSaleFORECLOSURE        9.160e+00  3.669e+01   0.250 0.803342    
+TypeSaleHOUSE              1.045e+02  1.783e+01   5.862 5.13e-08 ***
+Size_sqft                  2.592e-01  3.855e-02   6.724 8.93e-10 ***
+YearBuilt_1900             4.883e+00  1.630e+00   2.995 0.003409 ** 
+Size_sqft:YearBuilt_1900  -2.750e-03  6.432e-04  -4.276 4.14e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 75.1 on 107 degrees of freedom
+Multiple R-squared:  0.9377,    Adjusted R-squared:  0.9342 
+F-statistic: 268.6 on 6 and 107 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Fitted model equation is <span class="math display">\[
+  \widehat{\log_{10}(\textrm{PriceList})}
+    =
+    -342
+  + 116 I(\textrm{TypeSale} = \textrm{HOUSE})
+  + 9.16 \log_{10}(\textrm{Size_sqft})
+\]</span></p>
+<section id="solution-4" class="level3">
+<h3 class="anchored" data-anchor-id="solution-4">Solution</h3>
+<p>After Step 7, return and intepret the model coefficients above.</p>
+<p>[answer]</p>
+</section>
+</section>
+<section id="p-step-7-transform-predictors." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-7-transform-predictors."><strong>(2 p)</strong> (Step 7) Transform predictors.</h2>
+<p>We now have enough information to see that a transformation of a predictor can be useful. See the curvature with <code>Size_sqft</code>? This is one of the headaches of regression modelling, <em>everything depends on everything else</em> and you learn as you go. Return to the top and transform <code>Size_sqft</code> and <code>LotSize</code>.</p>
+<p>A nice feature of this transformation is that the model interaction goes away. Our interpretation is now on the log scale, but it’s a simpler model.</p>
+</section>
+<section id="p-step-8-predict-new-observations-interpret-models-predictive-ability." class="level2">
+<h2 class="anchored" data-anchor-id="p-step-8-predict-new-observations-interpret-models-predictive-ability."><strong>(4 p)</strong> (Step 8) Predict new observations, interpret model’s predictive ability.</h2>
+<p>Using the <code>predict()</code> function, we’ll input the data we held out to predict earlier, and use our final model to predict the <code>PriceListK</code> response. Note that <code>10^lm_pred</code> is the table of values on the scale of “thousands of dollars”.</p>
+<p>Interpret the predictions below the output.</p>
+<p>How well do you expect this model to predict? Justify your answer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict new observations, convert to data frame</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>      lm_final</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add column of actual list prices</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> dat_pred<span class="sc">$</span>PriceListK_true</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>lm_pred</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit       lwr      upr PriceListK
+1 171.0553  21.13390 320.9766      186.9
+2 213.6503  60.32045 366.9801      305.0
+3 133.5463 -21.88382 288.9764      244.0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># on "thousands of dollars" scale</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">^</span>lm_pred</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            fit          lwr           upr    PriceListK
+1 1.135702e+171 1.361129e+21           Inf 7.943282e+186
+2 4.469914e+213 2.091480e+60           Inf 1.000000e+305
+3 3.517992e+133 1.306721e-22 9.471238e+288 1.000000e+244</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes of the three predicted observations</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>dat_pred <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">width =</span> <span class="cn">Inf</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 10
+     id TypeSale   Beds Baths Size_sqft LotSize DaysListed YearBuilt_1900
+  &lt;int&gt; &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
+1     1 HOUSE         3     2      1305    6969          0             54
+2     2 APARTMENT     1     1      2523    6098          0             48
+3     3 APARTMENT     1     1      2816    6098          0             89
+  PriceListK PriceListK_true
+  &lt;lgl&gt;                &lt;dbl&gt;
+1 NA                    187.
+2 NA                    305 
+3 NA                    244 </code></pre>
+</div>
+</div>
+<section id="solution-5" class="level3">
+<h3 class="anchored" data-anchor-id="solution-5">Solution</h3>
+<p>[answer]</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
