@@ -1,6 +1,6 @@
 ---
 title:  "ADA2: Class 13, Ch 08, polynomial regression"
-author: Your Name
+author: Sina Mokhtar
 date:   last-modified
 description: |
   [Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12,
@@ -120,7 +120,21 @@ point? Discuss and carry out any needed analysis to support your position.
 ### Solution
 
 [answer]
+```{R}
+names(dat_boil)
+model.lm = lm(
+  pressure ~ boilingF,
+  data=dat_boil
+  )
+summary(model.lm)
+```
 
+```{r fig.height = 5,  fig.width =5}
+e_plot_lm_diagostics(model.lm)
+
+```
+
+there is curve in qqplot but its inside the bound so its roughly normally distributed. the observation 1, 2, 3 has lot influence in compare to others but its mostly because of the lack of fit. the observation 1 is highly influential and also large leverage but overall the whole model is not fit. The residuals vs fitted value and residual vs boilingF plot is curvature which mean pressure is not linearly related to boiling point and our model does not fit with the data. the boxcox plot also  suggest log transformation. however this model do a precise prediction but we are not suggest simple linear model for this data, because lack of fit. overall its a good model but not the best.  
 
 
 
@@ -134,7 +148,7 @@ Interpret $R^2$ in the previous simple linear regression model.
 
 [answer]
 
-
+The $R^2$ in the previous model was `r summary(model.lm)$r.square` which means our model explain %99 variation in response so the model do a good job on prediction, however as we saw before the linear model does not fit the data so $R^2 $ does not tell anything about  fitting of a model.  
 
 
 
@@ -149,9 +163,69 @@ check for influential observations, outliers, non-normality, etc.).
 ### Solution
 
 [answer]
+we have few options: we could fit a quadratic model or we can do log transformation (boxcox suggestion) we will try both to find a better model.
 
 
 
+#### Quad model
+
+```{R}
+model.quad = lm(
+  pressure ~ boilingF + I(boilingF^2),
+  data=dat_boil
+  )
+summary(model.quad)
+```
+
+```{r fig.height = 5,  fig.width =5}
+e_plot_lm_diagostics(model.quad)
+
+```
+In qqplot the residuals follow the line much better. the observation 2, 3 has more influence in compare to others but not as much as observation 1 in linear model. the observation 1 is highly influential and also large leverage. there is no structure in residual vs fitted value and residuals vs. boilingF and residuals vs boilingF^2. in boxcoxplot the peak is exactly on 1 which means we could resolve the issue of normality by adding boilingF^2 to the model. the added variable plots both look acceptable. overall all assumptions are met.
+
+the boilingF^2 is significant and $R^2$ increase from`r summary(model.lm)$r.square`  to `r summary(model.quad)$r.square`. therefore this is an acceptable model. 
+
+Note:
+because the boilingF is not centered the only H0 test we can interpret here is the highest ordered term which is boilingF^2 however we can make a new model with centered data. all the residuals and plot and coefficient of boilingP^2 variable will be the same however the coef and p-value of boilingF variable will change. 
+
+
+
+
+
+```{R}
+model.quad.centered = lm(
+  pressure ~ boilingF_cen + I(boilingF_cen^2),
+  data=dat_boil
+  )
+summary(model.quad.centered)
+```
+
+```{r fig.height = 5,  fig.width =5}
+e_plot_lm_diagostics(model.quad.centered)
+
+```
+
+
+#### log model
+```{R}
+
+model.log = lm(
+  log(pressure) ~ boilingF,
+  data=dat_boil
+  )
+summary(model.log)
+```
+
+
+```{r fig.height = 5,  fig.width =5}
+e_plot_lm_diagostics(model.log)
+
+```
+
+
+In qqplot the residuals follow the line. the observation 2, 31 has more influence in compare to others. the observation 2 is influential and also large has large leverage. there is no structure in residual vs fitted value and residuals vs. boilingF and residuals vs boilingF^2 however is not as good as the quadratic model. in boxcoxplot the one is in acceptable interval. overall it was improved in compareed to simple linear model but not as good as quadratic model. 
+
+the boilingF is significant and $R^2$ increase from`r summary(model.lm)$r.square` for linear model  to `r summary(model.log)$r.square`. in compare to $R^2$ : `r summary(model.quad)$r.square` for quadratic model it is little bit lower therefore this is an acceptable model but not as good as quadratic model. 
 
 
 ## __(2 p)__ Final model.
@@ -163,10 +237,14 @@ limitations of your analysis.
 ### Solution
 
 [answer]
+presure = 19.7 + 0.417 (boilF - mean(boilF)) + 0.00403 (boilF - mean(boilF))^2
+
+We did fit a model with a very high R^2 value and also all assumptions have been met however The regression model only apply to the domain of the data that were sampled. there may be also some error in measurement because of fragile barometers that were been used. 
+
 
 #### Example based on the first linear model
 
-_Assuming you called your linear model object `lm_p_b1`,
+_Assuming you called your linear model object `model.quad`,
   then the equation with code below will place
   the intercept and slope in the equation.
 Just add an `r ` before each of the `signif(...)` inline code chunks to
@@ -176,8 +254,9 @@ Then use this example to write your final model here._
 $$
   \widehat{\textrm{pressure}}
   =
-    ` signif(coef(lm_p_b1)[1], 3)`
-  + ` signif(coef(lm_p_b1)[2], 3)` \textrm{ boilF}
+    `r signif(coef(model.quad.centered)[1], 3)`
+  + `r signif(coef(model.quad.centered)[2], 3)` \textrm{ boilingF_cen}
+  
 $$
 
 

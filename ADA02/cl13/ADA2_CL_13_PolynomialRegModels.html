@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.251">
+<meta name="generator" content="quarto-1.2.269">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Your Name">
-<meta name="dcterms.date" content="2022-12-16">
+<meta name="author" content="Sina Mokhtar">
+<meta name="dcterms.date" content="2023-03-03">
 <meta name="description" content="[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM">
 
 <title>ADA2: Class 13, Ch 08, polynomial regression</title>
@@ -106,7 +106,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
 <main class="content column-page" id="quarto-document-content">
 
@@ -127,16 +127,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Your Name </p>
+             <p>Sina Mokhtar </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 16, 2022</p>
+      <p class="date">March 3, 2023</p>
     </div>
   </div>
+  
     
   </div>
   
@@ -195,14 +196,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages
-───────────────────────────────────────
-tidyverse 1.3.2 ──</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2
+──</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ ggplot2 3.4.0     ✔ purrr   0.3.5
-✔ tidyr   1.2.1     ✔ stringr 1.5.0
-✔ readr   2.1.3     ✔ forcats 0.5.2
+<pre><code>✔ ggplot2 3.4.0     ✔ purrr   1.0.1
+✔ tidyr   1.3.0     ✔ stringr 1.5.0
+✔ readr   2.1.3     ✔ forcats 1.0.0
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()</code></pre>
@@ -275,6 +275,59 @@ dbl (2): boilingF, pressure
 <section id="solution-1" class="level3">
 <h3 class="anchored" data-anchor-id="solution-1">Solution</h3>
 <p>[answer]</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(dat_boil)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "boilingF"     "pressure"     "boilingF_cen"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model.lm <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  pressure <span class="sc">~</span> boilingF,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>dat_boil</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.lm)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = pressure ~ boilingF, data = dat_boil)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.61383 -0.24968 -0.09921  0.26365  0.81232 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -64.412751   1.429165  -45.07   &lt;2e-16 ***
+boilingF      0.440282   0.007444   59.14   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3563 on 29 degrees of freedom
+Multiple R-squared:  0.9918,    Adjusted R-squared:  0.9915 
+F-statistic:  3498 on 1 and 29 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(model.lm)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 3.94974, Df = 1, p = 0.046879</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(model.lm): Collinearity plot only available
+with at least two predictor (x) variables.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>there is curve in qqplot but its inside the bound so its roughly normally distributed. the observation 1, 2, 3 has lot influence in compare to others but its mostly because of the lack of fit. the observation 1 is highly influential and also large leverage but overall the whole model is not fit. The residuals vs fitted value and residual vs boilingF plot is curvature which mean pressure is not linearly related to boiling point and our model does not fit with the data. the boxcox plot also suggest log transformation. however this model do a precise prediction but we are not suggest simple linear model for this data, because lack of fit. overall its a good model but not the best.</p>
 </section>
 </section>
 <section id="p-interpret-r2" class="level2">
@@ -283,6 +336,7 @@ dbl (2): boilingF, pressure
 <section id="solution-2" class="level3">
 <h3 class="anchored" data-anchor-id="solution-2">Solution</h3>
 <p>[answer]</p>
+<p>The <span class="math inline">\(R^2\)</span> in the previous model was 0.9917775 which means our model explain %99 variation in response so the model do a good job on prediction, however as we saw before the linear model does not fit the data so $R^2 $ does not tell anything about fitting of a model.</p>
 </section>
 </section>
 <section id="p-a-better-model." class="level2">
@@ -290,7 +344,170 @@ dbl (2): boilingF, pressure
 <p>Decide whether transformation, or a polynomial model in boiling point, is needed to adequately summarize the relationship between pressure and boiling point. If so, perform a complete analysis of the data on this scale (that is, check for influential observations, outliers, non-normality, etc.).</p>
 <section id="solution-3" class="level3">
 <h3 class="anchored" data-anchor-id="solution-3">Solution</h3>
-<p>[answer]</p>
+<p>[answer] we have few options: we could fit a quadratic model or we can do log transformation (boxcox suggestion) we will try both to find a better model.</p>
+<section id="quad-model" class="level4">
+<h4 class="anchored" data-anchor-id="quad-model">Quad model</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model.quad <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  pressure <span class="sc">~</span> boilingF <span class="sc">+</span> <span class="fu">I</span>(boilingF<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>dat_boil</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.quad)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = pressure ~ boilingF + I(boilingF^2), data = dat_boil)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.28756 -0.11622  0.03273  0.10767  0.22521 
+
+Coefficients:
+                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   88.0166227 13.9306304   6.318 7.81e-07 ***
+boilingF      -1.1295410  0.1433571  -7.879 1.39e-08 ***
+I(boilingF^2)  0.0040330  0.0003682  10.953 1.24e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1578 on 28 degrees of freedom
+Multiple R-squared:  0.9984,    Adjusted R-squared:  0.9983 
+F-statistic:  8984 on 2 and 28 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(model.quad)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 0.02423367, Df = 1, p = 0.87629</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(model.quad): Note: Collinearity plot unreliable
+for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-6-4.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>In qqplot the residuals follow the line much better. the observation 2, 3 has more influence in compare to others but not as much as observation 1 in linear model. the observation 1 is highly influential and also large leverage. there is no structure in residual vs fitted value and residuals vs.&nbsp;boilingF and residuals vs boilingF^2. in boxcoxplot the peak is exactly on 1 which means we could resolve the issue of normality by adding boilingF^2 to the model. the added variable plots both look acceptable. overall all assumptions are met.</p>
+<p>the boilingF^2 is significant and <span class="math inline">\(R^2\)</span> increase from0.9917775 to 0.9984441. therefore this is an acceptable model.</p>
+<p>Note: because the boilingF is not centered the only H0 test we can interpret here is the highest ordered term which is boilingF^2 however we can make a new model with centered data. all the residuals and plot and coefficient of boilingP^2 variable will be the same however the coef and p-value of boilingF variable will change.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>model.quad.centered <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  pressure <span class="sc">~</span> boilingF_cen <span class="sc">+</span> <span class="fu">I</span>(boilingF_cen<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>dat_boil</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.quad.centered)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = pressure ~ boilingF_cen + I(boilingF_cen^2), data = dat_boil)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.28756 -0.11622  0.03273  0.10767  0.22521 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       1.973e+01  3.929e-02  502.20  &lt; 2e-16 ***
+boilingF_cen      4.174e-01  3.901e-03  107.02  &lt; 2e-16 ***
+I(boilingF_cen^2) 4.033e-03  3.682e-04   10.95 1.24e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1578 on 28 degrees of freedom
+Multiple R-squared:  0.9984,    Adjusted R-squared:  0.9983 
+F-statistic:  8984 on 2 and 28 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(model.quad.centered)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 0.02423367, Df = 1, p = 0.87629</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(model.quad.centered): Note: Collinearity plot
+unreliable for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-8-4.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+</section>
+<section id="log-model" class="level4">
+<h4 class="anchored" data-anchor-id="log-model">log model</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>model.log <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(pressure) <span class="sc">~</span> boilingF,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>dat_boil</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.log)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log(pressure) ~ boilingF, data = dat_boil)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.014437 -0.004710  0.002234  0.005247  0.012937 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -1.0221374  0.0336450  -30.38   &lt;2e-16 ***
+boilingF     0.0208698  0.0001753  119.08   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.008389 on 29 degrees of freedom
+Multiple R-squared:  0.998, Adjusted R-squared:  0.9979 
+F-statistic: 1.418e+04 on 1 and 29 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(model.log)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid" width="480"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 0.6249889, Df = 1, p = 0.4292</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(model.log): Collinearity plot only available
+with at least two predictor (x) variables.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_13_PolynomialRegModels_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>In qqplot the residuals follow the line. the observation 2, 31 has more influence in compare to others. the observation 2 is influential and also large has large leverage. there is no structure in residual vs fitted value and residuals vs.&nbsp;boilingF and residuals vs boilingF^2 however is not as good as the quadratic model. in boxcoxplot the one is in acceptable interval. overall it was improved in compareed to simple linear model but not as good as quadratic model.</p>
+<p>the boilingF is significant and <span class="math inline">\(R^2\)</span> increase from0.9917775 for linear model to 0.9979592. in compare to <span class="math inline">\(R^2\)</span> : 0.9984441 for quadratic model it is little bit lower therefore this is an acceptable model but not as good as quadratic model.</p>
+</section>
 </section>
 </section>
 <section id="p-final-model." class="level2">
@@ -298,16 +515,13 @@ dbl (2): boilingF, pressure
 <p>Regardless of which scale you choose for the analysis, provide an equation to predict pressure from boiling point. Write a short summary, pointing out any limitations of your analysis.</p>
 <section id="solution-4" class="level3">
 <h3 class="anchored" data-anchor-id="solution-4">Solution</h3>
-<p>[answer]</p>
+<p>[answer] presure = 19.7 + 0.417 (boilF - mean(boilF)) + 0.00403 (boilF - mean(boilF))^2</p>
+<p>We did fit a model with a very high R^2 value and also all assumptions have been met however The regression model only apply to the domain of the data that were sampled. there may be also some error in measurement because of fragile barometers that were been used.</p>
 <section id="example-based-on-the-first-linear-model" class="level4">
 <h4 class="anchored" data-anchor-id="example-based-on-the-first-linear-model">Example based on the first linear model</h4>
-<p><em>Assuming you called your linear model object <code>lm_p_b1</code>, then the equation with code below will place the intercept and slope in the equation. Just add an <code>r</code> before each of the <code>signif(...)</code> inline code chunks to make the numbers appear. Then use this example to write your final model here.</em></p>
-<p><span class="math display">\[
-  \widehat{\textrm{pressure}}
-  =
-    ` signif(coef(lm_p_b1)[1], 3)`
-  + ` signif(coef(lm_p_b1)[2], 3)` \textrm{ boilF}
-\]</span></p>
+<p><em>Assuming you called your linear model object <code>model.quad</code>, then the equation with code below will place the intercept and slope in the equation. Just add an <code>r</code> before each of the <code>signif(...)</code> inline code chunks to make the numbers appear. Then use this example to write your final model here.</em></p>
+<p>$$ = 19.7 + 0.417 </p>
+<p>$$</p>
 </section>
 </section>
 </section>
@@ -371,24 +585,42 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>
