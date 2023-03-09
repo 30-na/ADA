@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="sina mokhtar">
-<meta name="dcterms.date" content="2023-03-07">
+<meta name="dcterms.date" content="2023-03-09">
 <meta name="description" content="[Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12, Stat 428/528, Spring 2023, Prof.&nbsp;Erik Erhardt, UNM">
 
 <title>ADA2: Class 14, Ch 07b, Analysis of Covariance</title>
@@ -134,7 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 7, 2023</p>
+      <p class="date">March 9, 2023</p>
     </div>
   </div>
   
@@ -212,7 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>── Attaching packages ─────────────────────────────────────── erikmisc 0.1.18 ──</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ tibble 3.1.7      ✔ dplyr  1.0.10</code></pre>
+<pre><code>✔ tibble 3.1.8      ✔ dplyr  1.0.10</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Conflicts ─────────────────────────────────────────── erikmisc_conflicts() ──
@@ -225,37 +225,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages
-───────────────────────────────────────
-tidyverse 1.3.2 ──</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2
+──</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ ggplot2 3.4.0     ✔ purrr   1.0.1
-✔ tidyr   1.2.1     ✔ stringr 1.5.0
-✔ readr   2.1.2     ✔ forcats 0.5.2
+<pre><code>✔ ggplot2 3.4.1     ✔ purrr   1.0.1
+✔ tidyr   1.3.0     ✔ stringr 1.5.0
+✔ readr   2.1.3     ✔ forcats 1.0.0
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># First, download the data to your computer,</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   save in the same folder as this Rmd file.</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># read the data, skip the first two comment lines of the data file</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"ADA2_CL_14_HomePricesZillow_Abq87108.csv"</span>, <span class="at">skip=</span><span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  , <span class="at">TypeSale =</span> <span class="fu">factor</span>(TypeSale)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># To help scale the intercept to a more reasonable value</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   Scaling the x-variables are sometimes done to the mean of each x.</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># center year at 1900 (negative values are older, -10 is built in 1890)</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  , <span class="at">YearBuilt_1900 =</span> YearBuilt <span class="sc">-</span> <span class="dv">1900</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    id, <span class="fu">everything</span>()</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    , <span class="sc">-</span>Address, <span class="sc">-</span>YearBuilt</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># First, download the data to your computer,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   save in the same folder as this Rmd file.</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># read the data, skip the first two comment lines of the data file</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"ADA2_CL_14_HomePricesZillow_Abq87108.csv"</span>, <span class="at">skip=</span><span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">TypeSale =</span> <span class="fu">factor</span>(TypeSale)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># To help scale the intercept to a more reasonable value</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   Scaling the x-variables are sometimes done to the mean of each x.</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># center year at 1900 (negative values are older, -10 is built in 1890)</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  , <span class="at">YearBuilt_1900 =</span> YearBuilt <span class="sc">-</span> <span class="dv">1900</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    id, <span class="fu">everything</span>()</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    , <span class="sc">-</span>Address, <span class="sc">-</span>YearBuilt</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 143 Columns: 9
 ── Column specification ────────────────────────────────────────────────────────
@@ -269,15 +269,15 @@ dbl (7): PriceList, Beds, Baths, Size_sqft, LotSize, YearBuilt, DaysListed
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat_abq)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 9
-     id TypeSale  PriceList  Beds Baths Size_sqft LotSize DaysListed
-  &lt;int&gt; &lt;fct&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
-1     1 HOUSE        186900     3     2      1305    6969          0
-2     2 APARTMENT    305000     1     1      2523    6098          0
-3     3 APARTMENT    244000     1     1      2816    6098          0
-4     4 CONDO        108000     3     2      1137      NA          0
-5     5 CONDO         64900     2     1      1000      NA          1
-6     6 HOUSE        275000     3     3      2022    6098          1
-# … with 1 more variable: YearBuilt_1900 &lt;dbl&gt;</code></pre>
+     id TypeSale  PriceList  Beds Baths Size_sqft LotSize DaysListed YearBuilt…¹
+  &lt;int&gt; &lt;fct&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
+1     1 HOUSE        186900     3     2      1305    6969          0          54
+2     2 APARTMENT    305000     1     1      2523    6098          0          48
+3     3 APARTMENT    244000     1     1      2816    6098          0          89
+4     4 CONDO        108000     3     2      1137      NA          0          96
+5     5 CONDO         64900     2     1      1000      NA          1          85
+6     6 HOUSE        275000     3     3      2022    6098          1          52
+# … with abbreviated variable name ¹​YearBuilt_1900</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## RETURN HERE TO SUBSET THE DATA</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -289,40 +289,42 @@ dbl (7): PriceList, Beds, Baths, Size_sqft, LotSize, YearBuilt, DaysListed
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">TypeSale =</span> <span class="fu">factor</span>(TypeSale)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># note, if you remove a level from a categorical variable, then run factor() again</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># these deletions are based only on the scatter plot in order to have</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  "typical" dwellings</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># note, if you remove a level from a categorical variable, then run factor() again</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># these deletions are based only on the scatter plot in order to have</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  "typical" dwellings</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_abq)</span></code></pre></div>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_abq)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       id              TypeSale    PriceList            Beds      
- Min.   :  1.00   APARTMENT:37   Min.   :  65000   Min.   :1.000  
- 1st Qu.: 40.50   HOUSE    :74   1st Qu.: 144450   1st Qu.:1.000  
- Median : 71.00                  Median : 175000   Median :3.000  
- Mean   : 74.59                  Mean   : 236288   Mean   :2.261  
- 3rd Qu.:112.00                  3rd Qu.: 257450   3rd Qu.:3.000  
- Max.   :143.00                  Max.   :3110000   Max.   :5.000  
+<pre><code>       id              TypeSale    PriceList            Beds     
+ Min.   :  1.00   APARTMENT:41   Min.   :  65000   Min.   :1.00  
+ 1st Qu.: 39.75   HOUSE    :91   1st Qu.: 139250   1st Qu.:1.00  
+ Median : 72.50                  Median : 169250   Median :3.00  
+ Mean   : 73.32                  Mean   : 226403   Mean   :2.28  
+ 3rd Qu.:108.25                  3rd Qu.: 249250   3rd Qu.:3.00  
+ Max.   :143.00                  Max.   :3110000   Max.   :5.00  
+                                                                 
      Baths         Size_sqft        LotSize         DaysListed    
  Min.   :1.000   Min.   :  783   Min.   :  3049   Min.   :   0.0  
- 1st Qu.:1.000   1st Qu.: 1360   1st Qu.:  6534   1st Qu.:  34.5  
- Median :1.000   Median : 1780   Median :  6969   Median :  86.0  
- Mean   :1.563   Mean   : 2398   Mean   : 13746   Mean   : 129.2  
- 3rd Qu.:2.000   3rd Qu.: 2640   3rd Qu.:  8712   3rd Qu.: 187.5  
+ 1st Qu.:1.000   1st Qu.: 1310   1st Qu.:  6534   1st Qu.:  33.5  
+ Median :1.000   Median : 1748   Median :  6969   Median :  88.0  
+ Mean   :1.542   Mean   : 2272   Mean   : 13571   Mean   : 122.4  
+ 3rd Qu.:2.000   3rd Qu.: 2559   3rd Qu.:  8712   3rd Qu.: 174.0  
  Max.   :5.000   Max.   :33000   Max.   :609840   Max.   :1867.0  
+ NA's   :1                       NA's   :18                       
  YearBuilt_1900  
  Min.   : 30.00  
  1st Qu.: 50.00  
  Median : 52.00  
- Mean   : 56.46  
+ Mean   : 56.72  
  3rd Qu.: 60.00  
- Max.   :106.00  </code></pre>
+ Max.   :106.00  
+ NA's   :3       </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#filter(dat_abq, id == 21)</span></span></code></pre></div>
 </div>
@@ -335,82 +337,54 @@ dbl (7): PriceList, Beds, Baths, Size_sqft, LotSize, YearBuilt, DaysListed
   +.gg   ggplot2</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ggpairs(dat_abq[,c("TypeSale", "PriceList", "Beds", "Baths", "Size_sqft")])</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(dat_abq[,<span class="fu">c</span>(<span class="st">"TypeSale"</span>, <span class="st">"PriceList"</span>, <span class="st">"Beds"</span>, <span class="st">"Baths"</span>, <span class="st">"Size_sqft"</span>, <span class="st">"LotSize"</span>, <span class="st">"DaysListed"</span>, <span class="st">"YearBuilt_1900"</span>)], <span class="at">mapping =</span> ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">color=</span>TypeSale, <span class="at">alpha=</span>.<span class="dv">5</span>))</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero
-
-Warning in cor(x, y): the standard deviation is zero</code></pre>
-</div>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(dat_abq <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">everything</span>(), <span class="sc">-</span>id, <span class="sc">-</span>Baths), <span class="at">mapping =</span> ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">color=</span>TypeSale, <span class="at">alpha=</span>.<span class="dv">5</span>))</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="576"></p>
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="960"></p>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dat_abq_reduced <span class="ot">=</span> dat_abq <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">everything</span>(), <span class="sc">-</span>Baths, <span class="sc">-</span>LotSize) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(dat_abq_reduced <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">everything</span>(), <span class="sc">-</span>id), <span class="at">mapping =</span> ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">color=</span>TypeSale, <span class="at">alpha=</span>.<span class="dv">5</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid" width="960"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>dat_abq,</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>Size_sqft,</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y=</span>PriceList,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span>TypeSale,</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span>id))<span class="sc">+</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">alpha =</span> .<span class="dv">5</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">nudge_x =</span> <span class="fl">0.3</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_abq_reduced <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">everything</span>(), <span class="sc">-</span>id, <span class="sc">-</span>TypeSale))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                PriceList        Beds   Size_sqft  DaysListed YearBuilt_1900
+PriceList      1.00000000  0.01050194  0.93729170  0.01589238     0.04649946
+Beds           0.01050194  1.00000000 -0.17577972 -0.12561607    -0.21475246
+Size_sqft      0.93729170 -0.17577972  1.00000000  0.04687242     0.16943291
+DaysListed     0.01589238 -0.12561607  0.04687242  1.00000000     0.07070996
+YearBuilt_1900 0.04649946 -0.21475246  0.16943291  0.07070996     1.00000000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>dat_abq,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>Size_sqft,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y=</span>PriceList,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span>TypeSale,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span>id))<span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">alpha =</span> .<span class="dv">5</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">nudge_x =</span> <span class="fl">0.3</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="576"></p>
-</div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>     <span class="sc">!</span>id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">120</span>)</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>dat_abq,</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>Size_sqft,</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">y=</span>PriceList,</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span>TypeSale,</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span>id))<span class="sc">+</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">alpha =</span> .<span class="dv">5</span>,</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">nudge_x =</span> <span class="fl">0.3</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </section>
@@ -419,9 +393,9 @@ Warning in cor(x, y): the standard deviation is zero</code></pre>
 <p><strong>Step 3:</strong> Does the response variable require a transformation? If so, what transformation is recommended from the model diagnostic plots (Box-Cox)?</p>
 <section id="solution" class="level3">
 <h3 class="anchored" data-anchor-id="solution">Solution</h3>
-<p>[answer]</p>
+<p>Yes we need transformation based of COX-BOX plot (it contain zero) we do log transformation. [answer]</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Loading required package: carData</code></pre>
 </div>
@@ -439,63 +413,49 @@ Attaching package: 'car'</code></pre>
 
     recode</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>full.model.lm <span class="ot">=</span> <span class="fu">lm</span>(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  PriceList <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Baths <span class="sc">+</span> Size_sqft <span class="sc">+</span> LotSize <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span>, </span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat_abq)</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full.model.lm)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>full.model.lm <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  PriceList <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat_abq_reduced)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full.model.lm)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-lm(formula = PriceList ~ (TypeSale + Beds + Baths + Size_sqft + 
-    LotSize + DaysListed + YearBuilt_1900)^2, data = dat_abq)
+lm(formula = PriceList ~ (TypeSale + Beds + Size_sqft + DaysListed + 
+    YearBuilt_1900)^2, data = dat_abq_reduced)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--138003  -34733     -74   26506  120068 
+-187238  -39119     521   33801  392702 
 
-Coefficients: (2 not defined because of singularities)
-                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                   7.515e+04  1.689e+05   0.445  0.65756    
-TypeSaleHOUSE                 7.072e+05  2.429e+05   2.912  0.00461 ** 
-Beds                         -8.792e+04  9.482e+04  -0.927  0.35648    
-Baths                        -9.145e+04  1.096e+05  -0.834  0.40661    
-Size_sqft                     9.889e+01  7.656e+01   1.292  0.20007    
-LotSize                       5.270e+00  2.326e+01   0.227  0.82130    
-DaysListed                   -8.780e+01  3.932e+02  -0.223  0.82388    
-YearBuilt_1900               -4.601e+03  2.973e+03  -1.548  0.12548    
-TypeSaleHOUSE:Beds                   NA         NA      NA       NA    
-TypeSaleHOUSE:Baths                  NA         NA      NA       NA    
-TypeSaleHOUSE:Size_sqft      -6.200e+01  5.623e+01  -1.103  0.27342    
-TypeSaleHOUSE:LotSize        -1.993e+01  2.712e+01  -0.735  0.46447    
-TypeSaleHOUSE:DaysListed     -5.745e+01  2.769e+02  -0.207  0.83618    
-TypeSaleHOUSE:YearBuilt_1900 -8.792e+03  5.191e+03  -1.694  0.09406 .  
-Beds:Baths                   -4.642e+04  3.725e+04  -1.246  0.21619    
-Beds:Size_sqft                5.319e+01  2.034e+01   2.615  0.01059 *  
-Beds:LotSize                  8.419e+00  7.826e+00   1.076  0.28512    
-Beds:DaysListed               1.833e+01  1.410e+02   0.130  0.89686    
-Beds:YearBuilt_1900           7.958e+00  1.919e+03   0.004  0.99670    
-Baths:Size_sqft               3.062e+00  2.636e+01   0.116  0.90782    
-Baths:LotSize                -8.764e+00  6.685e+00  -1.311  0.19345    
-Baths:DaysListed              7.879e+01  1.932e+02   0.408  0.68443    
-Baths:YearBuilt_1900          5.838e+03  1.308e+03   4.465 2.51e-05 ***
-Size_sqft:LotSize            -2.270e-04  4.627e-03  -0.049  0.96098    
-Size_sqft:DaysListed         -1.279e-01  1.402e-01  -0.912  0.36434    
-Size_sqft:YearBuilt_1900     -1.776e+00  1.385e+00  -1.282  0.20344    
-LotSize:DaysListed           -2.248e-02  2.948e-02  -0.762  0.44793    
-LotSize:YearBuilt_1900        2.750e-01  3.330e-01   0.826  0.41133    
-DaysListed:YearBuilt_1900     5.472e+00  4.979e+00   1.099  0.27494    
+Coefficients: (1 not defined because of singularities)
+                               Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                   1.932e+04  1.473e+05   0.131   0.8959  
+TypeSaleHOUSE                 3.098e+05  1.970e+05   1.573   0.1185  
+Beds                         -1.404e+05  8.320e+04  -1.688   0.0942 .
+Size_sqft                     1.538e+02  7.229e+01   2.127   0.0356 *
+DaysListed                   -3.851e+02  4.083e+02  -0.943   0.3476  
+YearBuilt_1900                1.936e+02  2.276e+03   0.085   0.9324  
+TypeSaleHOUSE:Beds                   NA         NA      NA       NA  
+TypeSaleHOUSE:Size_sqft       1.714e+01  3.703e+01   0.463   0.6443  
+TypeSaleHOUSE:DaysListed      3.850e+02  2.529e+02   1.522   0.1307  
+TypeSaleHOUSE:YearBuilt_1900 -5.723e+03  3.110e+03  -1.841   0.0683 .
+Beds:Size_sqft                2.946e+00  1.036e+01   0.284   0.7766  
+Beds:DaysListed              -1.298e+02  1.056e+02  -1.230   0.2214  
+Beds:YearBuilt_1900           2.817e+03  1.352e+03   2.084   0.0394 *
+Size_sqft:DaysListed          2.118e-01  1.063e-01   1.992   0.0487 *
+Size_sqft:YearBuilt_1900     -1.748e+00  9.800e-01  -1.784   0.0771 .
+DaysListed:YearBuilt_1900    -5.985e-02  5.324e+00  -0.011   0.9911  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 58820 on 83 degrees of freedom
-Multiple R-squared:  0.7732,    Adjusted R-squared:  0.7021 
-F-statistic: 10.88 on 26 and 83 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 73770 on 114 degrees of freedom
+Multiple R-squared:  0.9367,    Adjusted R-squared:  0.9289 
+F-statistic: 120.5 on 14 and 114 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#cor(dat_abq[, c("PriceList" , "Beds" ,  "Baths" , "Size_sqft" , "LotSize" , "DaysListed" , "YearBuilt_1900")])</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co">#car::Anova(full.model.lm, type=3)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#car::Anova(full.model.lm, type=3)</span></span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(full.model.lm)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(full.model.lm)</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="480"></p>
 </div>
@@ -505,13 +465,10 @@ F-statistic: 10.88 on 26 and 83 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-5-3.png" class="img-fluid" width="480"></p>
 </div>
-<div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid" width="480"></p>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Non-constant Variance Score Test 
 Variance formula: ~ fitted.values 
-Chisquare = 6.404039, Df = 1, p = 0.011386</code></pre>
+Chisquare = 0.1788738, Df = 1, p = 0.67234</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>there are higher-order terms (interactions) in this model
@@ -521,66 +478,40 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <pre><code>Error in vif.default(fit): there are aliased coefficients in the model</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-5-5.png" class="img-fluid" width="480"></p>
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-5-4.png" class="img-fluid" width="480"></p>
 </div>
 </div>
-<p>based on coxbox plot we do log transformation</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>full.model.log <span class="ot">=</span> <span class="fu">lm</span>(</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(PriceList) <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Baths <span class="sc">+</span> Size_sqft <span class="sc">+</span> LotSize <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span>, </span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat_abq)</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full.model.lm)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>dat_abq_trans <span class="ot">&lt;-</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  dat_abq_reduced <span class="sc">%&gt;%</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Price in units of $1000</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> (PriceList <span class="sc">/</span> <span class="dv">1000</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># SOLUTION</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>PriceList</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat_abq_trans)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = PriceList ~ (TypeSale + Beds + Baths + Size_sqft + 
-    LotSize + DaysListed + YearBuilt_1900)^2, data = dat_abq)
-
-Residuals:
-    Min      1Q  Median      3Q     Max 
--138003  -34733     -74   26506  120068 
-
-Coefficients: (2 not defined because of singularities)
-                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                   7.515e+04  1.689e+05   0.445  0.65756    
-TypeSaleHOUSE                 7.072e+05  2.429e+05   2.912  0.00461 ** 
-Beds                         -8.792e+04  9.482e+04  -0.927  0.35648    
-Baths                        -9.145e+04  1.096e+05  -0.834  0.40661    
-Size_sqft                     9.889e+01  7.656e+01   1.292  0.20007    
-LotSize                       5.270e+00  2.326e+01   0.227  0.82130    
-DaysListed                   -8.780e+01  3.932e+02  -0.223  0.82388    
-YearBuilt_1900               -4.601e+03  2.973e+03  -1.548  0.12548    
-TypeSaleHOUSE:Beds                   NA         NA      NA       NA    
-TypeSaleHOUSE:Baths                  NA         NA      NA       NA    
-TypeSaleHOUSE:Size_sqft      -6.200e+01  5.623e+01  -1.103  0.27342    
-TypeSaleHOUSE:LotSize        -1.993e+01  2.712e+01  -0.735  0.46447    
-TypeSaleHOUSE:DaysListed     -5.745e+01  2.769e+02  -0.207  0.83618    
-TypeSaleHOUSE:YearBuilt_1900 -8.792e+03  5.191e+03  -1.694  0.09406 .  
-Beds:Baths                   -4.642e+04  3.725e+04  -1.246  0.21619    
-Beds:Size_sqft                5.319e+01  2.034e+01   2.615  0.01059 *  
-Beds:LotSize                  8.419e+00  7.826e+00   1.076  0.28512    
-Beds:DaysListed               1.833e+01  1.410e+02   0.130  0.89686    
-Beds:YearBuilt_1900           7.958e+00  1.919e+03   0.004  0.99670    
-Baths:Size_sqft               3.062e+00  2.636e+01   0.116  0.90782    
-Baths:LotSize                -8.764e+00  6.685e+00  -1.311  0.19345    
-Baths:DaysListed              7.879e+01  1.932e+02   0.408  0.68443    
-Baths:YearBuilt_1900          5.838e+03  1.308e+03   4.465 2.51e-05 ***
-Size_sqft:LotSize            -2.270e-04  4.627e-03  -0.049  0.96098    
-Size_sqft:DaysListed         -1.279e-01  1.402e-01  -0.912  0.36434    
-Size_sqft:YearBuilt_1900     -1.776e+00  1.385e+00  -1.282  0.20344    
-LotSize:DaysListed           -2.248e-02  2.948e-02  -0.762  0.44793    
-LotSize:YearBuilt_1900        2.750e-01  3.330e-01   0.826  0.41133    
-DaysListed:YearBuilt_1900     5.472e+00  4.979e+00   1.099  0.27494    
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 58820 on 83 degrees of freedom
-Multiple R-squared:  0.7732,    Adjusted R-squared:  0.7021 
-F-statistic: 10.88 on 26 and 83 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>tibble [129 × 7] (S3: tbl_df/tbl/data.frame)
+ $ id            : int [1:129] 1 2 3 6 7 9 10 12 13 14 ...
+ $ TypeSale      : Factor w/ 2 levels "APARTMENT","HOUSE": 2 1 1 2 2 2 2 1 2 2 ...
+ $ Beds          : num [1:129] 3 1 1 3 2 3 3 1 4 2 ...
+ $ Size_sqft     : num [1:129] 1305 2523 2816 2022 1440 ...
+ $ DaysListed    : num [1:129] 0 0 0 1 1 1 2 2 6 6 ...
+ $ YearBuilt_1900: num [1:129] 54 48 89 52 52 58 52 49 41 53 ...
+ $ PriceListK    : num [1:129] 187 305 244 275 133 ...
+ - attr(*, "na.action")= 'omit' Named int [1:3] 57 83 98
+  ..- attr(*, "names")= chr [1:3] "57" "83" "98"</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>full.model.log <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log10</span>(PriceListK) <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat_abq_trans)</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(full.model.log)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(full.model.log)</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="480"></p>
 </div>
@@ -590,13 +521,10 @@ F-statistic: 10.88 on 26 and 83 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid" width="480"></p>
 </div>
-<div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-7-4.png" class="img-fluid" width="480"></p>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Non-constant Variance Score Test 
 Variance formula: ~ fitted.values 
-Chisquare = 0.5741436, Df = 1, p = 0.44862</code></pre>
+Chisquare = 0.3182669, Df = 1, p = 0.57265</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>there are higher-order terms (interactions) in this model
@@ -606,46 +534,7 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <pre><code>Error in vif.default(fit): there are aliased coefficients in the model</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-7-5.png" class="img-fluid" width="480"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>dat_abq[<span class="dv">21</span>,]</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 9
-     id TypeSale PriceList  Beds Baths Size_sqft LotSize DaysListed
-  &lt;int&gt; &lt;fct&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
-1    31 HOUSE       175000     3     3      2314  609840         22
-# … with 1 more variable: YearBuilt_1900 &lt;dbl&gt;</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Price in units of $1000</span></span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> PriceList <span class="sc">/</span> <span class="dv">1000</span></span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># SOLUTION</span></span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>PriceList</span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat_abq)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>tibble [110 × 9] (S3: tbl_df/tbl/data.frame)
- $ id            : int [1:110] 1 2 3 6 7 9 10 12 13 14 ...
- $ TypeSale      : Factor w/ 2 levels "APARTMENT","HOUSE": 2 1 1 2 2 2 2 1 2 2 ...
- $ Beds          : num [1:110] 3 1 1 3 2 3 3 1 4 2 ...
- $ Baths         : num [1:110] 2 1 1 3 1 2 2 1 2 1 ...
- $ Size_sqft     : num [1:110] 1305 2523 2816 2022 1440 ...
- $ LotSize       : num [1:110] 6969 6098 6098 6098 8712 ...
- $ DaysListed    : num [1:110] 0 0 0 1 1 1 2 2 6 6 ...
- $ YearBuilt_1900: num [1:110] 54 48 89 52 52 58 52 49 41 53 ...
- $ PriceListK    : num [1:110] 187 305 244 275 133 ...
- - attr(*, "na.action")= 'omit' Named int [1:21] 12 18 20 21 23 29 37 38 57 67 ...
-  ..- attr(*, "names")= chr [1:21] "12" "18" "20" "21" ...</code></pre>
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-7-4.png" class="img-fluid" width="480"></p>
 </div>
 </div>
 </section>
@@ -653,15 +542,59 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <section id="p-step-4-remove-extremely-influential-observations." class="level2">
 <h2 class="anchored" data-anchor-id="p-step-4-remove-extremely-influential-observations."><strong>(2 p)</strong> (Step 4) Remove extremely influential observations.</h2>
 <p><strong>Step 4:</strong> The goal is to develop a model that will work well for the typical dwellings. If an observation is highly influential, then it’s unusual.</p>
+<p>based on Cooks dist vs Leverage plot we noticed observations with id 132 are highly influential and also we remove PriceListK &lt; 500, Size_sqft &lt; 4000, Beds &lt; 5, and DaysListed &lt; 300 and YearBuilt_1900 &lt; 100 to develop a model that will work well for the typical dwellings.<br>
+After transformation and removing influential observation it seems all assumptions are met</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Remove influential observation</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="ot">&lt;-</span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    dat_abq <span class="sc">%&gt;%</span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>   <span class="co"># !(id  %in% c( ... ))</span></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(dat_abq_trans)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "id"             "TypeSale"       "Beds"           "Size_sqft"     
+[5] "DaysListed"     "YearBuilt_1900" "PriceListK"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Remove influential observation</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co">#dat_abq_rem_influen[107,]</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  dat_abq_rem_influen <span class="ot">&lt;-</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    dat_abq_trans <span class="sc">%&gt;%</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>     <span class="co"># !(id  %in% c(120, 143, 130, 32, 50, 134, 140)),</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span>(id  <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">132</span>)),</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>      PriceListK <span class="sc">&lt;</span> <span class="dv">500</span>,</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>      Size_sqft <span class="sc">&lt;</span> <span class="dv">4000</span>,</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>      Beds <span class="sc">&lt;</span> <span class="dv">5</span>,</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>      DaysListed <span class="sc">&lt;</span> <span class="dv">300</span>,</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>      YearBuilt_1900 <span class="sc">&lt;</span> <span class="dv">100</span></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SOLUTION</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>full.model.log <span class="ot">=</span> <span class="fu">lm</span>(</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log10</span>(PriceListK) <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat_abq_rem_influen)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(full.model.log)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 0.4715461, Df = 1, p = 0.49228</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>there are higher-order terms (interactions) in this model
+consider setting type = 'predictor'; see ?vif</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in vif.default(fit): there are aliased coefficients in the model</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid" width="960"></p>
+</div>
 </div>
 </section>
 <section id="subset-data-for-model-building-and-prediction" class="level2">
@@ -669,20 +602,20 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <p>Create a subset of the data for building the model, and another subset for prediction later on.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove observations with NAs</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>dat_abq <span class="ot">&lt;-</span></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>dat_abq_rem_influen <span class="ot">&lt;-</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  dat_abq_rem_influen <span class="sc">%&gt;%</span></span>
 <span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
 <span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the data subset we will use to build our model</span></span>
 <span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>dat_sub <span class="ot">&lt;-</span></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  dat_abq_rem_influen <span class="sc">%&gt;%</span></span>
 <span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
 <span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>    DaysListed <span class="sc">&gt;</span> <span class="dv">0</span></span>
 <span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a><span class="co"># the data subset we will predict from our model</span></span>
 <span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>dat_pred <span class="ot">&lt;-</span></span>
-<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>  dat_abq <span class="sc">%&gt;%</span></span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>  dat_abq_rem_influen <span class="sc">%&gt;%</span></span>
 <span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
 <span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a>    DaysListed <span class="sc">==</span> <span class="dv">0</span></span>
 <span id="cb52-18"><a href="#cb52-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
@@ -707,7 +640,32 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>  , <span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"cor"</span>)</span>
 <span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">progress =</span> <span class="cn">FALSE</span></span>
 <span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a><span class="co">#print(p)</span></span></code></pre></div>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in cor(x, y): the standard deviation is zero</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in cor(x, y): the standard deviation is zero
+
+Warning in cor(x, y): the standard deviation is zero
+
+Warning in cor(x, y): the standard deviation is zero
+
+Warning in cor(x, y): the standard deviation is zero</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="768"></p>
+</div>
 </div>
 <p>There are clearly some unusual observations. Go back to the first code chunk and remove some observations that don’t represent a “typical” dwelling.</p>
 <p>For example, remove these dwellings (in code above):</p>
@@ -721,7 +679,30 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <section id="solution-1" class="level3">
 <h3 class="anchored" data-anchor-id="solution-1">Solution</h3>
 <p>[answer]</p>
-<p>Features of data:</p>
+<p>Features of data: 1. “TypeSale”<br>
+2. “Beds”<br>
+3. “Size_sqft”<br>
+4. “DaysListed”<br>
+5. “YearBuilt_1900”</p>
+<p>There was high correletion between beds and baths and also ypeSale:Beds which cause coliniarity problem in or model. in addition we did transformation and removed influential observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(dat_sub)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "id"             "TypeSale"       "Beds"           "Size_sqft"     
+[5] "DaysListed"     "YearBuilt_1900" "PriceListK"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>dat_sub,</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>DaysListed,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y=</span>PriceListK,</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span>TypeSale,</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span>id))<span class="sc">+</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">alpha =</span> .<span class="dv">5</span>,</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">nudge_x =</span> <span class="fl">0.3</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="576"></p>
+</div>
+</div>
 </section>
 </section>
 <section id="p-step-2-fit-full-two-way-interaction-model." class="level2">
@@ -731,92 +712,142 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <p>Somewhat arbitrarily, let’s exclude <code>Baths</code> (since highly correlated with <code>Beds</code> and <code>Size_sqft</code>). Let’s also exclude <code>LotSize</code> (since highly correlated with <code>Size_sqft</code>). Modify the code below. Notice that because APARTMENTs don’t have more than 1 Beds or Baths, those interaction terms need to be excluded from the model; I show you how to do this manually using the <code>update()</code> function.</p>
 <p>Note that the formula below <code>y ~ (x1 + x2 + x3)^2</code> expands into all main effects and two-way interactions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## SOLUTION</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lm</span>(</span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>      PriceListK <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    , <span class="at">data =</span> dat_sub</span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#lm_full &lt;-</span></span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  lm(</span></span>
-<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2</span></span>
-<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  , data = dat_sub</span></span>
-<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  )</span></span>
-<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>  lm_full</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## SOLUTION</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lm</span>(</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">log10</span>(PriceListK) <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> Size_sqft <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>    , <span class="at">data =</span> dat_sub</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#lm_full &lt;-</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  lm(</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  , data = dat_sub</span></span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  )</span></span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(lm_full)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-lm(formula = PriceListK ~ (TypeSale + Beds + Size_sqft + DaysListed + 
-    YearBuilt_1900)^2, data = dat_sub)
+lm(formula = log10(PriceListK) ~ (TypeSale + Beds + Size_sqft + 
+    DaysListed + YearBuilt_1900)^2, data = dat_sub)
 
-Coefficients:
-                 (Intercept)                 TypeSaleHOUSE  
-                   6.238e+01                     2.325e+02  
-                        Beds                     Size_sqft  
-                  -1.235e+02                     9.385e-02  
-                  DaysListed                YearBuilt_1900  
-                   1.425e-03                     1.412e-01  
-          TypeSaleHOUSE:Beds       TypeSaleHOUSE:Size_sqft  
-                          NA                     5.541e-02  
-    TypeSaleHOUSE:DaysListed  TypeSaleHOUSE:YearBuilt_1900  
-                   4.783e-02                    -4.574e+00  
-              Beds:Size_sqft               Beds:DaysListed  
-                   4.005e-03                    -3.416e-02  
-         Beds:YearBuilt_1900          Size_sqft:DaysListed  
-                   2.077e+00                     6.765e-05  
-    Size_sqft:YearBuilt_1900     DaysListed:YearBuilt_1900  
-                  -9.163e-04                    -1.885e-03  </code></pre>
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.38166 -0.06724  0.01320  0.06718  0.29322 
+
+Coefficients: (1 not defined because of singularities)
+                               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                   2.347e+00  3.609e-01   6.504 4.15e-09 ***
+TypeSaleHOUSE                 3.714e-01  4.415e-01   0.841    0.402    
+Beds                         -1.697e-01  1.697e-01  -1.000    0.320    
+Size_sqft                     1.350e-04  1.777e-04   0.760    0.449    
+DaysListed                   -2.822e-04  1.418e-03  -0.199    0.843    
+YearBuilt_1900               -1.017e-02  7.562e-03  -1.345    0.182    
+TypeSaleHOUSE:Beds                   NA         NA      NA       NA    
+TypeSaleHOUSE:Size_sqft       4.803e-06  1.190e-04   0.040    0.968    
+TypeSaleHOUSE:DaysListed      9.868e-04  9.567e-04   1.032    0.305    
+TypeSaleHOUSE:YearBuilt_1900 -5.155e-03  7.955e-03  -0.648    0.519    
+Beds:Size_sqft                1.177e-05  4.637e-05   0.254    0.800    
+Beds:DaysListed              -4.293e-04  4.047e-04  -1.061    0.292    
+Beds:YearBuilt_1900           3.556e-03  2.890e-03   1.230    0.222    
+Size_sqft:DaysListed          1.390e-07  3.598e-07   0.386    0.700    
+Size_sqft:YearBuilt_1900      3.126e-07  2.926e-06   0.107    0.915    
+DaysListed:YearBuilt_1900     2.876e-06  2.527e-05   0.114    0.910    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1253 on 91 degrees of freedom
+Multiple R-squared:  0.5245,    Adjusted R-squared:  0.4513 
+F-statistic: 7.168 on 14 and 91 DF,  p-value: 9.238e-10</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(car)</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Error in Anova.III.lm(mod, error, singular.ok = singular.ok, ...) : 
   there are aliased coefficients in the model</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## There isn't a second level of bed or bath to estimate the interaction.</span></span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Therefore, remove those two terms</span></span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(</span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>      lm_full</span>
-<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>    , . <span class="sc">~</span> . <span class="sc">-</span> TypeSale<span class="sc">:</span>Beds</span>
-<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(car)</span>
-<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## There isn't a second level of bed or bath to estimate the interaction.</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Therefore, remove those two terms</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  lm_full <span class="ot">&lt;-</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>      lm_full</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>    , . <span class="sc">~</span> . <span class="sc">-</span> TypeSale<span class="sc">:</span>Beds</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Anova Table (Type III tests)
 
-Response: PriceListK
-                          Sum Sq Df F value Pr(&gt;F)
-(Intercept)                  650  1  0.1196 0.7302
-TypeSale                    5242  1  0.9648 0.3285
-Beds                        8430  1  1.5516 0.2161
-Size_sqft                   7333  1  1.3498 0.2483
-DaysListed                     0  1  0.0000 0.9974
-YearBuilt_1900                13  1  0.0024 0.9609
-TypeSale:Size_sqft          9737  1  1.7922 0.1840
-TypeSale:DaysListed          160  1  0.0294 0.8642
-TypeSale:YearBuilt_1900     6812  1  1.2539 0.2657
-Beds:Size_sqft               706  1  0.1300 0.7193
-Beds:DaysListed              470  1  0.0865 0.7694
-Beds:YearBuilt_1900         7886  1  1.4516 0.2314
-Size_sqft:DaysListed        1509  1  0.2777 0.5995
-Size_sqft:YearBuilt_1900    3853  1  0.7091 0.4019
-DaysListed:YearBuilt_1900    557  1  0.1026 0.7495
-Residuals                 499825 92               </code></pre>
+Response: log10(PriceListK)
+                           Sum Sq Df F value    Pr(&gt;F)    
+(Intercept)               0.66456  1 42.2963 4.151e-09 ***
+TypeSale                  0.01112  1  0.7078    0.4024    
+Beds                      0.01571  1  0.9997    0.3200    
+Size_sqft                 0.00907  1  0.5775    0.4492    
+DaysListed                0.00062  1  0.0396    0.8428    
+YearBuilt_1900            0.02842  1  1.8085    0.1820    
+TypeSale:Size_sqft        0.00003  1  0.0016    0.9679    
+TypeSale:DaysListed       0.01672  1  1.0640    0.3050    
+TypeSale:YearBuilt_1900   0.00660  1  0.4200    0.5186    
+Beds:Size_sqft            0.00101  1  0.0644    0.8003    
+Beds:DaysListed           0.01768  1  1.1255    0.2915    
+Beds:YearBuilt_1900       0.02379  1  1.5141    0.2217    
+Size_sqft:DaysListed      0.00234  1  0.1492    0.7002    
+Size_sqft:YearBuilt_1900  0.00018  1  0.0114    0.9152    
+DaysListed:YearBuilt_1900 0.00020  1  0.0130    0.9096    
+Residuals                 1.42980 91                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="co">#e_plot_lm_diagostics(lm_full)</span></span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="co"># List the row numbers with id numbers</span></span>
-<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   The row numbers appear in the residual plots.</span></span>
-<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   The id number can be used to exclude values in code above.</span></span>
-<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>dat_sub <span class="sc">%&gt;%</span> <span class="fu">select</span>(id) <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(lm_full)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-3.png" class="img-fluid" width="960"></p>
+</div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 107 × 1
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 0.6971503, Df = 1, p = 0.40374</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>there are higher-order terms (interactions) in this model
+consider setting type = 'predictor'; see ?vif</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-4.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(lm_full): Note: Collinearity plot unreliable
+for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-5.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-6.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-7.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-8.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-9.png" class="img-fluid" width="960"></p>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List the row numbers with id numbers</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   The row numbers appear in the residual plots.</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   The id number can be used to exclude values in code above.</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>dat_sub <span class="sc">%&gt;%</span> <span class="fu">select</span>(id) <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 106 × 1
        id
     &lt;int&gt;
   1     6
@@ -827,111 +858,119 @@ Residuals                 499825 92               </code></pre>
   6    13
   7    14
   8    15
-  9    17
- 10    19
+  9    16
+ 10    17
  11    20
  12    21
  13    22
- 14    24
- 15    27
- 16    29
- 17    30
- 18    31
- 19    32
- 20    33
- 21    35
- 22    36
- 23    38
- 24    39
- 25    40
- 26    41
- 27    42
- 28    45
- 29    46
- 30    47
- 31    48
- 32    49
- 33    50
- 34    51
- 35    52
- 36    53
- 37    54
- 38    55
- 39    56
- 40    57
- 41    58
- 42    59
- 43    60
- 44    61
- 45    62
- 46    64
- 47    65
- 48    66
- 49    67
- 50    68
- 51    69
- 52    70
- 53    71
- 54    72
- 55    77
- 56    78
- 57    79
- 58    80
- 59    81
- 60    83
- 61    84
- 62    85
- 63    86
- 64    87
- 65    91
- 66    92
- 67    94
- 68    95
- 69    99
- 70   100
- 71   101
- 72   102
- 73   103
- 74   104
- 75   105
- 76   106
- 77   108
- 78   109
- 79   110
- 80   111
- 81   113
- 82   114
- 83   115
- 84   116
- 85   117
- 86   119
- 87   121
- 88   122
- 89   123
- 90   124
- 91   126
- 92   127
- 93   128
- 94   129
- 95   130
- 96   131
- 97   132
- 98   133
- 99   134
-100   135
-101   136
-102   137
-103   138
-104   140
-105   141
-106   142
-107   143</code></pre>
+ 14    23
+ 15    24
+ 16    25
+ 17    26
+ 18    27
+ 19    28
+ 20    29
+ 21    30
+ 22    31
+ 23    33
+ 24    34
+ 25    35
+ 26    36
+ 27    38
+ 28    39
+ 29    40
+ 30    41
+ 31    42
+ 32    43
+ 33    44
+ 34    45
+ 35    46
+ 36    47
+ 37    48
+ 38    49
+ 39    51
+ 40    52
+ 41    53
+ 42    54
+ 43    55
+ 44    56
+ 45    57
+ 46    58
+ 47    60
+ 48    61
+ 49    62
+ 50    64
+ 51    65
+ 52    67
+ 53    68
+ 54    69
+ 55    70
+ 56    71
+ 57    72
+ 58    73
+ 59    74
+ 60    75
+ 61    76
+ 62    77
+ 63    78
+ 64    79
+ 65    81
+ 66    83
+ 67    84
+ 68    85
+ 69    86
+ 70    87
+ 71    88
+ 72    89
+ 73    91
+ 74    92
+ 75    94
+ 76    97
+ 77    98
+ 78    99
+ 79   100
+ 80   101
+ 81   102
+ 82   103
+ 83   104
+ 84   105
+ 85   106
+ 86   108
+ 87   109
+ 88   110
+ 89   111
+ 90   112
+ 91   113
+ 92   114
+ 93   115
+ 94   116
+ 95   118
+ 96   119
+ 97   121
+ 98   123
+ 99   124
+100   126
+101   127
+102   128
+103   131
+104   133
+105   134
+106   135</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(lm_full<span class="sc">$</span>residuals)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  lm_full$residuals
+W = 0.98268, p-value = 0.183</code></pre>
 </div>
 </div>
 <p>After Step 2, interpret the residual plots. What are the primary issues in the original model?</p>
 <section id="solution-2" class="level3">
 <h3 class="anchored" data-anchor-id="solution-2">Solution</h3>
-<p>[answer]</p>
+<p>[answer] The Residual plot is roughly normal however the tail and head is skewed. by Shapiro test the residual p-value is greater than .05 which means we have not enough evidence that say residuals is not normal. so we met normality assumption. the residuals vs fitted value look acceptable. the plots for residuals vs other features are also acceptable</p>
+<p>because there was high correlation between bath and beds and also lotsize we remove baths and lotsize from our model and also APARTMENTs don’t have more than 1 Beds or Baths,so those interaction terms need to be excluded from the model. so we fixed the collinearity problem in the model.</p>
 </section>
 </section>
 <section id="p-step-5-model-selection-check-model-assumptions." class="level2">
@@ -940,26 +979,51 @@ Residuals                 499825 92               </code></pre>
 <section id="solution-3" class="level3">
 <h3 class="anchored" data-anchor-id="solution-3">Solution</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="do">## BIC</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="co"># option: test="F" includes additional information</span></span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="co">#           for parameter estimate tests that we're familiar with</span></span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="co"># option: for BIC, include k=log(nrow( [data.frame name] ))</span></span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>lm_red_BIC <span class="ot">&lt;-</span></span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step</span>(</span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>    lm_full</span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">direction =</span> <span class="st">"both"</span></span>
-<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>  , <span class="at">test =</span> <span class="st">"F"</span></span>
-<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>  , <span class="at">trace =</span> <span class="dv">0</span></span>
-<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">k =</span> <span class="fu">log</span>(<span class="fu">nrow</span>(dat_sub))</span>
-<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>lm_final <span class="ot">&lt;-</span> lm_red_BIC</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="do">## BIC</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="co"># option: test="F" includes additional information</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="co">#           for parameter estimate tests that we're familiar with</span></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="co"># option: for BIC, include k=log(nrow( [data.frame name] ))</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>lm_red_BIC <span class="ot">&lt;-</span></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step</span>(</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>    lm_full</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">direction =</span> <span class="st">"both"</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>  , <span class="at">test =</span> <span class="st">"F"</span></span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>  , <span class="at">trace =</span> <span class="dv">0</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">k =</span> <span class="fu">log</span>(<span class="fu">nrow</span>(dat_sub))</span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a>lm_final <span class="ot">&lt;-</span> lm_red_BIC</span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a>lm.final <span class="ot">=</span> lm_red_BIC</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="co">#e_plot_lm_diagostics(lm_final)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(lm_final)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="960"></p>
 </div>
-<p>Model assumptions appear to be reasonably met. A few influential observations exist.</p>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-16-3.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 1.789649, Df = 1, p = 0.18097</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(lm_final): Note: Collinearity plot unreliable
+for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-16-4.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-16-5.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<p>Model assumptions appear to be reasonably met. A few influential observations exist. The residuals are roughly distributed normal based on QQplot (there is a little bit skewness, but it is not that much severe). A few influential observations exist. The variances looks constant. based on box-cox plot we do not need transformation. residuals look acceptable</p>
 </section>
 </section>
 <section id="p-step-6-plot-final-model-interpret-coefficients." class="level2">
@@ -974,50 +1038,281 @@ Residuals                 499825 92               </code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Anova(lm_final, type=3)</span></span>
-<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_final)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(lm.final, <span class="at">type=</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: log10(PriceListK)
+               Sum Sq  Df F value    Pr(&gt;F)    
+(Intercept)    9.4443   1 633.368 &lt; 2.2e-16 ***
+TypeSale       0.6950   1  46.611 6.363e-10 ***
+Size_sqft      1.3438   1  90.118 1.079e-15 ***
+YearBuilt_1900 0.2879   1  19.309 2.729e-05 ***
+Residuals      1.5210 102                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.final)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-lm(formula = PriceListK ~ TypeSale + Size_sqft + TypeSale:Size_sqft, 
+lm(formula = log10(PriceListK) ~ TypeSale + Size_sqft + YearBuilt_1900, 
     data = dat_sub)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--179.64  -38.39   -4.00   26.56  394.90 
+     Min       1Q   Median       3Q      Max 
+-0.41779 -0.06529  0.00684  0.05714  0.34219 
 
 Coefficients:
-                         Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)              63.46842   28.35874   2.238   0.0274 *  
-TypeSaleHOUSE           -54.32481   35.25025  -1.541   0.1264    
-Size_sqft                 0.04430    0.00873   5.075 1.73e-06 ***
-TypeSaleHOUSE:Size_sqft   0.07505    0.01409   5.328 5.86e-07 ***
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     2.004e+00  7.964e-02  25.167  &lt; 2e-16 ***
+TypeSaleHOUSE   2.233e-01  3.271e-02   6.827 6.36e-10 ***
+Size_sqft       2.064e-04  2.174e-05   9.493 1.08e-15 ***
+YearBuilt_1900 -5.718e-03  1.301e-03  -4.394 2.73e-05 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 71.18 on 103 degrees of freedom
-Multiple R-squared:  0.5843,    Adjusted R-squared:  0.5722 
-F-statistic: 48.27 on 3 and 103 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 0.1221 on 102 degrees of freedom
+Multiple R-squared:  0.4941,    Adjusted R-squared:  0.4793 
+F-statistic: 33.21 on 3 and 102 DF,  p-value: 4.639e-15</code></pre>
 </div>
 </div>
 <p>Fitted model equation is <span class="math display">\[
-  \widehat{\log_{10}(\textrm{PriceList})}
+  \widehat{\log{10}(\textrm{PriceList})}
     =
-    63.5
-  + -54.3 I(\textrm{TypeSale} = \textrm{HOUSE})
-  + 0.0443 \log_{10}(\textrm{Size_sqft})
+    2
+  + 0.223 I({TypeSale} = \textrm{HOUSE})
+  + 2.06\times 10^{-4} (\textrm{Size.sqft})
+  + -0.00572 (\textrm{YearBuilt})
 \]</span></p>
 <section id="solution-4" class="level3">
 <h3 class="anchored" data-anchor-id="solution-4">Solution</h3>
-<p>After Step 7, return and intepret the model coefficients above.</p>
-<p>[answer]</p>
+<p>After Step 7, return and interpret the model coefficients above.</p>
+<p>[answer] the log10 of Price will increase if<br>
+on average, by one sqft increase in size we expect 2.06^{-4} increase in log(PriceListK) assuming other variables constant.<br>
+on average, by one year increase in yearBuild we expect -0.00572 increase in log(PriceListK) assuming other variables constant.<br>
+for Apartment, on average the log(PriceListK) would be 2 if all other variable would be zero(which is not usefull for interpretation).<br>
+for House, on average the log(PriceListK) would be (2 + 0.223) if all other variable would be zero(which is not usefull for interpretation).</p>
 </section>
 </section>
 <section id="p-step-7-transform-predictors." class="level2">
 <h2 class="anchored" data-anchor-id="p-step-7-transform-predictors."><strong>(2 p)</strong> (Step 7) Transform predictors.</h2>
 <p>We now have enough information to see that a transformation of a predictor can be useful. See the curvature with <code>Size_sqft</code>? This is one of the headaches of regression modelling, <em>everything depends on everything else</em> and you learn as you go. Return to the top and transform <code>Size_sqft</code> and <code>LotSize</code>.</p>
 <p>A nice feature of this transformation is that the model interaction goes away. Our interpretation is now on the log scale, but it’s a simpler model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## SOLUTION</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  lm_full_logSize <span class="ot">&lt;-</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lm</span>(</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">log10</span>(PriceListK) <span class="sc">~</span> (TypeSale <span class="sc">+</span> Beds <span class="sc">+</span> <span class="fu">log10</span>(Size_sqft) <span class="sc">+</span> DaysListed <span class="sc">+</span> YearBuilt_1900)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>    , <span class="at">data =</span> dat_sub</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#lm_full &lt;-</span></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  lm(</span></span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2</span></span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  , data = dat_sub</span></span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  )</span></span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(lm_full_logSize)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log10(PriceListK) ~ (TypeSale + Beds + log10(Size_sqft) + 
+    DaysListed + YearBuilt_1900)^2, data = dat_sub)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.37568 -0.06478  0.01052  0.06831  0.27809 
+
+Coefficients: (1 not defined because of singularities)
+                                  Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                      1.086e+00  2.381e+00   0.456    0.649
+TypeSaleHOUSE                    1.177e+00  1.421e+00   0.829    0.409
+Beds                            -5.668e-01  5.710e-01  -0.993    0.323
+log10(Size_sqft)                 4.733e-01  7.519e-01   0.629    0.531
+DaysListed                      -1.487e-03  4.480e-03  -0.332    0.741
+YearBuilt_1900                  -2.247e-02  4.348e-02  -0.517    0.607
+TypeSaleHOUSE:Beds                      NA         NA      NA       NA
+TypeSaleHOUSE:log10(Size_sqft)  -2.403e-01  4.396e-01  -0.546    0.586
+TypeSaleHOUSE:DaysListed         9.654e-04  9.530e-04   1.013    0.314
+TypeSaleHOUSE:YearBuilt_1900    -4.997e-03  8.291e-03  -0.603    0.548
+Beds:log10(Size_sqft)            1.268e-01  1.759e-01   0.721    0.473
+Beds:DaysListed                 -4.139e-04  4.056e-04  -1.020    0.310
+Beds:YearBuilt_1900              3.439e-03  2.997e-03   1.147    0.254
+log10(Size_sqft):DaysListed      2.995e-04  1.356e-03   0.221    0.826
+log10(Size_sqft):YearBuilt_1900  3.890e-03  1.325e-02   0.294    0.770
+DaysListed:YearBuilt_1900        1.184e-05  2.455e-05   0.482    0.631
+
+Residual standard error: 0.1221 on 91 degrees of freedom
+Multiple R-squared:  0.5485,    Adjusted R-squared:  0.479 
+F-statistic: 7.895 on 14 and 91 DF,  p-value: 1.132e-10</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full_logSize, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in Anova.III.lm(mod, error, singular.ok = singular.ok, ...) : 
+  there are aliased coefficients in the model</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>  <span class="do">## There isn't a second level of bed or bath to estimate the interaction.</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Therefore, remove those two terms</span></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>  lm_full_logSize <span class="ot">&lt;-</span></span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">update</span>(</span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>      lm_full_logSize</span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a>    , . <span class="sc">~</span> . <span class="sc">-</span> TypeSale<span class="sc">:</span>Beds</span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb88-9"><a href="#cb88-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">try</span>(<span class="fu">Anova</span>(lm_full_logSize, <span class="at">type=</span><span class="dv">3</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: log10(PriceListK)
+                                 Sum Sq Df F value Pr(&gt;F)
+(Intercept)                     0.00310  1  0.2080 0.6494
+TypeSale                        0.01024  1  0.6866 0.4095
+Beds                            0.01470  1  0.9856 0.3235
+log10(Size_sqft)                0.00591  1  0.3962 0.5306
+DaysListed                      0.00164  1  0.1102 0.7407
+YearBuilt_1900                  0.00398  1  0.2671 0.6065
+TypeSale:log10(Size_sqft)       0.00446  1  0.2986 0.5861
+TypeSale:DaysListed             0.01531  1  1.0263 0.3137
+TypeSale:YearBuilt_1900         0.00542  1  0.3633 0.5482
+Beds:log10(Size_sqft)           0.00775  1  0.5196 0.4729
+Beds:DaysListed                 0.01554  1  1.0414 0.3102
+Beds:YearBuilt_1900             0.01964  1  1.3167 0.2542
+log10(Size_sqft):DaysListed     0.00073  1  0.0488 0.8257
+log10(Size_sqft):YearBuilt_1900 0.00129  1  0.0862 0.7698
+DaysListed:YearBuilt_1900       0.00347  1  0.2324 0.6309
+Residuals                       1.35764 91               </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Uncomment this line when you're ready to assess the model assumptions</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics</span></span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(lm_full_logSize)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-3.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 1.591387, Df = 1, p = 0.20713</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>there are higher-order terms (interactions) in this model
+consider setting type = 'predictor'; see ?vif</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-4.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(lm_full_logSize): Note: Collinearity plot
+unreliable for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-5.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-6.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-7.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-8.png" class="img-fluid" width="960"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-20-9.png" class="img-fluid" width="960"></p>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List the row numbers with id numbers</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   The row numbers appear in the residual plots.</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   The id number can be used to exclude values in code above.</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(lm_full_logSize<span class="sc">$</span>residuals)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  lm_full_logSize$residuals
+W = 0.98387, p-value = 0.2277</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>lm_red_BIC_logSize <span class="ot">&lt;-</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step</span>(</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>    lm_full_logSize</span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">direction =</span> <span class="st">"both"</span></span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">test =</span> <span class="st">"F"</span></span>
+<span id="cb96-6"><a href="#cb96-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">trace =</span> <span class="dv">0</span></span>
+<span id="cb96-7"><a href="#cb96-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">k =</span> <span class="fu">log</span>(<span class="fu">nrow</span>(dat_sub))</span>
+<span id="cb96-8"><a href="#cb96-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb96-9"><a href="#cb96-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-10"><a href="#cb96-10" aria-hidden="true" tabindex="-1"></a>lm.final.logSize <span class="ot">=</span> lm_red_BIC_logSize</span>
+<span id="cb96-11"><a href="#cb96-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-12"><a href="#cb96-12" aria-hidden="true" tabindex="-1"></a><span class="fu">e_plot_lm_diagostics</span>(lm.final.logSize)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="576"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="576"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-21-3.png" class="img-fluid" width="576"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Non-constant Variance Score Test 
+Variance formula: ~ fitted.values 
+Chisquare = 4.091626, Df = 1, p = 0.043096</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in e_plot_lm_diagostics(lm.final.logSize): Note: Collinearity plot
+unreliable for predictors that also have interactions in the model.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-21-4.png" class="img-fluid" width="576"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-21-5.png" class="img-fluid" width="576"></p>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm.final.logSize)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log10(PriceListK) ~ TypeSale + log10(Size_sqft) + 
+    YearBuilt_1900, data = dat_sub)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.42236 -0.07062  0.00990  0.07286  0.31216 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      -0.360661   0.271947  -1.326 0.187729    
+TypeSaleHOUSE     0.210319   0.031363   6.706 1.13e-09 ***
+log10(Size_sqft)  0.833836   0.084437   9.875  &lt; 2e-16 ***
+YearBuilt_1900   -0.004655   0.001236  -3.768 0.000276 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1198 on 102 degrees of freedom
+Multiple R-squared:  0.5129,    Adjusted R-squared:  0.4986 
+F-statistic:  35.8 on 3 and 102 DF,  p-value: 6.868e-16</code></pre>
+</div>
+</div>
+<p><span class="math display">\[
+  \widehat{\log{10}(\textrm{PriceList})}
+    =
+    -0.361
+  + 0.21 I({TypeSale} = \textrm{HOUSE})
+  + 0.834 (\textrm{log10(Size.sqft)})
+  + -0.00466 (\textrm{YearBuilt})
+\]</span></p>
+<p>on average, by one unit log(size_sqft) increase we expect 0.834 increase in log(PriceListK) assuming other variables constant.<br>
+on average, by one year decrease in yearBuild we expect -0.00466 increase in log(PriceListK) assuming other variables constant.<br>
+for Apartment, on average the log(PriceListK) would be –0.361 if all other variable would be zero(which is not usefull for interpretation).<br>
+for House, on average the log(PriceListK) would be (-0.361+0.21) if all other variable would be zero(which is not usefull for interpretation).</p>
 </section>
 <section id="p-step-8-predict-new-observations-interpret-models-predictive-ability." class="level2">
 <h2 class="anchored" data-anchor-id="p-step-8-predict-new-observations-interpret-models-predictive-ability."><strong>(4 p)</strong> (Step 8) Predict new observations, interpret model’s predictive ability.</h2>
@@ -1025,48 +1320,48 @@ F-statistic: 48.27 on 3 and 103 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>Interpret the predictions below the output.</p>
 <p>How well do you expect this model to predict? Justify your answer.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict new observations, convert to data frame</span></span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>      lm_final</span>
-<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
-<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
-<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add column of actual list prices</span></span>
-<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> dat_pred<span class="sc">$</span>PriceListK_true</span>
-<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a>lm_pred</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict new observations, convert to data frame</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>      lm_final</span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
+<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
+<span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb101-9"><a href="#cb101-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb101-10"><a href="#cb101-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb101-11"><a href="#cb101-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add column of actual list prices</span></span>
+<span id="cb101-12"><a href="#cb101-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> dat_pred<span class="sc">$</span>PriceListK_true</span>
+<span id="cb101-13"><a href="#cb101-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb101-14"><a href="#cb101-14" aria-hidden="true" tabindex="-1"></a>lm_pred</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       fit      lwr      upr PriceListK
-1 164.9003 22.45417 307.3464      186.9
-2 175.2411 31.83890 318.6434      305.0
-3 188.2215 44.98014 331.4628      244.0</code></pre>
+1 2.188175 1.944126 2.432224      186.9
+2 2.250483 2.001429 2.499536      305.0
+3 2.076528 1.820203 2.332853      244.0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># on "thousands of dollars" scale</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">^</span>lm_pred</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="co"># on "thousands of dollars" scale</span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span><span class="sc">^</span>lm_pred</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            fit          lwr           upr    PriceListK
-1 7.948807e+164 2.845553e+22 2.220431e+307 7.943282e+186
-2 1.742377e+175 6.900798e+31           Inf 1.000000e+305
-3 1.665275e+188 9.552907e+44           Inf 1.000000e+244</code></pre>
+<pre><code>       fit       lwr      upr    PriceListK
+1 154.2321  87.92769 270.5354 7.943282e+186
+2 178.0256 100.32957 315.8902 1.000000e+305
+3 119.2691  66.10022 215.2053 1.000000e+244</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes of the three predicted observations</span></span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>dat_pred <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">width =</span> <span class="cn">Inf</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes of the three predicted observations</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>dat_pred <span class="sc">%&gt;%</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">width =</span> <span class="cn">Inf</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 10
-     id TypeSale   Beds Baths Size_sqft LotSize DaysListed YearBuilt_1900
-  &lt;int&gt; &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;
-1     1 HOUSE         3     2      1305    6969          0             54
-2     2 APARTMENT     1     1      2523    6098          0             48
-3     3 APARTMENT     1     1      2816    6098          0             89
-  PriceListK PriceListK_true
-  &lt;lgl&gt;                &lt;dbl&gt;
-1 NA                    187.
-2 NA                    305 
-3 NA                    244 </code></pre>
+<pre><code># A tibble: 3 × 8
+     id TypeSale   Beds Size_sqft DaysListed YearBuilt_1900 PriceListK
+  &lt;int&gt; &lt;fct&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt; &lt;lgl&gt;     
+1     1 HOUSE         3      1305          0             54 NA        
+2     2 APARTMENT     1      2523          0             48 NA        
+3     3 APARTMENT     1      2816          0             89 NA        
+  PriceListK_true
+            &lt;dbl&gt;
+1            187.
+2            305 
+3            244 </code></pre>
 </div>
 </div>
 <section id="solution-5" class="level3">
