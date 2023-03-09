@@ -176,7 +176,7 @@ If so, what transformation is recommended from the model diagnostic plots (Box-C
 
 
 ### Solution
-Yes Since Zero is in the 95% interval of Box-Cox plot we do log transformation
+Yes we need transformation based of COX-BOX plot (it contain zero) we do log transformation.
 [answer]
 ```{R}
 library(car)
@@ -206,7 +206,7 @@ dat_abq_trans <-
   )
 str(dat_abq_trans)
 full.model.log = lm(
-  log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
+  log10(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
   data = dat_abq_trans)
 ```
 
@@ -223,22 +223,29 @@ The goal is to develop a model that will work well for the typical dwellings.
 If an observation is highly influential, then it's unusual.
 
 
+based on Cooks dist vs Leverage plot we noticed observations with id 132 are highly influential and also we remove PriceListK < 500, Size_sqft < 4000, Beds < 5, and DaysListed < 300 and YearBuilt_1900 < 100 to develop a model that will work well for the typical dwellings.  
+After transformation and removing influential observation it seems all assumptions are met
+
 ```{R}
+names(dat_abq_trans)
+
 ## Remove influential observation
-dat_abq_rem_influen[37,]
+#dat_abq_rem_influen[107,]
   dat_abq_rem_influen <-
     dat_abq_trans %>%
     dplyr::filter(
-      !(id  %in% c(120, 143, 130, 32, 50, 134, 140)),
-      PriceListK < 400,
-      Size_sqft < 6000,
+     # !(id  %in% c(120, 143, 130, 32, 50, 134, 140)),
+      !(id  %in% c(132)),
+      PriceListK < 500,
+      Size_sqft < 4000,
       Beds < 5,
-      DaysListed < 400
+      DaysListed < 300,
+      YearBuilt_1900 < 100
     )
 
   # SOLUTION
 full.model.log = lm(
-  log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
+  log10(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
   data = dat_abq_rem_influen)
 ```
 
@@ -316,11 +323,19 @@ Discuss the observed correlations or other outstanding features in the data.
 [answer]
 
 Features of data:
+1. "TypeSale"       
+2. "Beds"           
+3. "Size_sqft"      
+4. "DaysListed"     
+5. "YearBuilt_1900"
+
+
+There was high correletion between beds and baths and also ypeSale:Beds which cause coliniarity problem in or model. in addition we did transformation and removed influential observations.  
 
 ```{R}
 names(dat_sub)
 ggplot(data=dat_sub,
-       aes(x=YearBuilt_1900,
+       aes(x=DaysListed,
            y=PriceListK,
            color=TypeSale,
            label=id))+
@@ -360,7 +375,7 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
   ## SOLUTION
   lm_full <-
     lm(
-      log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2
+      log10(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2
     , data = dat_sub
     )
   #lm_full <-
@@ -368,7 +383,7 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
   #    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2
   #  , data = dat_sub
   #  )
-  lm_full
+  summary(lm_full)
   try(Anova(lm_full, type=3))
   ## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.
   ## There isn't a second level of bed or bath to estimate the interaction.
@@ -391,6 +406,7 @@ e_plot_lm_diagostics(lm_full)
 #   The row numbers appear in the residual plots.
 #   The id number can be used to exclude values in code above.
 dat_sub %>% select(id) %>% print(n = Inf)
+shapiro.test(lm_full$residuals)
 ```
 
 After Step 2, interpret the residual plots.
@@ -399,7 +415,9 @@ What are the primary issues in the original model?
 ### Solution
 
 [answer]
-The 
+The Residual plot is roughly normal however the tail and head is skewed. by Shapiro test the residual p-value is greater than .05 which means we have not enough evidence that say residuals is not normal. so we met normality assumption. the residuals vs fitted value look acceptable. the plots for residuals vs other features are also acceptable
+
+because there was high correlation between bath and beds and also lotsize we remove baths and lotsize from our model and also APARTMENTs don’t have more than 1 Beds or Baths,so those interaction terms need to be excluded from the model. so we fixed the collinearity problem in the model.
 
 
 
@@ -425,16 +443,21 @@ lm_red_BIC <-
   , k = log(nrow(dat_sub))
   )
 lm_final <- lm_red_BIC
+lm.final = lm_red_BIC
 ```
+
+
 ```{R, fig.height = 3, fig.width = 10}
 ## Uncomment this line when you're ready to assess the model assumptions
 # plot diagnostics
-#e_plot_lm_diagostics(lm_final)
+e_plot_lm_diagostics(lm_final)
 ```
 
 Model assumptions appear to be reasonably met.
 A few influential observations exist.
-
+The residuals are roughly distributed normal based on QQplot (there is a little bit skewness, but it is not
+that much severe). A few influential observations exist. The variances looks constant. based on
+box-cox plot we do not need transformation. residuals look acceptable
 
 ## __(4 p)__ (Step 6) Plot final model, interpret coefficients.
 
@@ -457,26 +480,30 @@ print(p)
 
 ```{R}
 library(car)
-#Anova(lm_final, type=3)
-summary(lm_final)
+Anova(lm.final, type=3)
+summary(lm.final)
 ```
 
 Fitted model equation is
 $$
-  \widehat{\log_{10}(\textrm{PriceList})}
+  \widehat{\log{10}(\textrm{PriceList})}
     =
-    `r signif(coef(lm_final)[1], 3)`
-  + `r signif(coef(lm_final)[2], 3)` I(\textrm{TypeSale} = \textrm{HOUSE})
-  + `r signif(coef(lm_final)[3], 3)` \log_{10}(\textrm{Size_sqft})
+    `r signif(coef(lm.final)[1], 3)`
+  + `r signif(coef(lm.final)[2], 3)` I({TypeSale} = \textrm{HOUSE})
+  + `r signif(coef(lm.final)[3], 3)` (\textrm{Size.sqft})
+  + `r signif(coef(lm.final)[4], 3)` (\textrm{YearBuilt})
 $$
 
 ### Solution
 
-After Step 7, return and intepret the model coefficients above.
+After Step 7, return and interpret the model coefficients above.
 
 [answer]
-
-
+the log10 of Price will increase if  
+on average, by one sqft increase in size we expect `r signif(coef(lm.final)[3], 3)` increase in log(PriceListK) assuming other variables constant.  
+on average, by one year increase in yearBuild we expect `r signif(coef(lm.final)[4], 3)` increase in log(PriceListK) assuming other variables constant.  
+for Apartment, on average the log(PriceListK) would be `r signif(coef(lm.final)[1], 3)` if all other variable would be zero(which is not usefull for interpretation).  
+for House, on average the log(PriceListK) would be (`r signif(coef(lm.final)[1], 3)` + `r signif(coef(lm.final)[2], 3)`) if all other variable would be zero(which is not usefull for interpretation).  
 
 ## __(2 p)__ (Step 7) Transform predictors.
 
@@ -489,6 +516,73 @@ Return to the top and transform `Size_sqft` and `LotSize`.
 
 A nice feature of this transformation is that the model interaction goes away.
 Our interpretation is now on the log scale, but it's a simpler model.
+
+```{R}
+  ## SOLUTION
+  lm_full_logSize <-
+    lm(
+      log10(PriceListK) ~ (TypeSale + Beds + log10(Size_sqft) + DaysListed + YearBuilt_1900)^2
+    , data = dat_sub
+    )
+  #lm_full <-
+  #  lm(
+  #    PriceListK ~ (Beds + Baths + Size_sqft + LotSize + DaysListed + YearBuilt_1900)^2
+  #  , data = dat_sub
+  #  )
+  summary(lm_full_logSize)
+  try(Anova(lm_full_logSize, type=3))
+  ## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.
+  ## There isn't a second level of bed or bath to estimate the interaction.
+  ## Therefore, remove those two terms
+  lm_full_logSize <-
+    update(
+      lm_full_logSize
+    , . ~ . - TypeSale:Beds
+    )
+  try(Anova(lm_full_logSize, type=3))
+```
+
+
+```{R, fig.height = 3, fig.width = 10}
+## Uncomment this line when you're ready to assess the model assumptions
+# plot diagnostics
+e_plot_lm_diagostics(lm_full_logSize)
+
+# List the row numbers with id numbers
+#   The row numbers appear in the residual plots.
+#   The id number can be used to exclude values in code above.
+shapiro.test(lm_full_logSize$residuals)
+```
+
+```{R}
+lm_red_BIC_logSize <-
+  step(
+    lm_full_logSize
+  , direction = "both"
+  , test = "F"
+  , trace = 0
+  , k = log(nrow(dat_sub))
+  )
+
+lm.final.logSize = lm_red_BIC_logSize
+
+e_plot_lm_diagostics(lm.final.logSize)
+summary(lm.final.logSize)
+```
+
+$$
+  \widehat{\log{10}(\textrm{PriceList})}
+    =
+    `r signif(coef(lm.final.logSize)[1], 3)`
+  + `r signif(coef(lm.final.logSize)[2], 3)` I({TypeSale} = \textrm{HOUSE})
+  + `r signif(coef(lm.final.logSize)[3], 3)` (\textrm{log10(Size.sqft)})
+  + `r signif(coef(lm.final.logSize)[4], 3)` (\textrm{YearBuilt})
+$$
+
+on average, by one unit log(size_sqft) increase we expect `r signif(coef(lm.final.logSize)[3], 3)` increase in log(PriceListK) assuming other variables constant.    
+on average, by one year decrease in yearBuild we expect `r signif(coef(lm.final.logSize)[4], 3)`  increase in log(PriceListK) assuming other variables constant.  
+for Apartment, on average the log(PriceListK) would be -`r signif(coef(lm.final.logSize)[1], 3)` if all other variable would be zero(which is not usefull for interpretation).  
+for House, on average the log(PriceListK) would be (`r signif(coef(lm.final.logSize)[1], 3)`+`r signif(coef(lm.final.logSize)[2], 3)`) if all other variable would be zero(which is not usefull for interpretation).  
 
 
 
@@ -507,7 +601,7 @@ How well do you expect this model to predict? Justify your answer.
 lm_pred <-
   as.data.frame(
     predict(
-      lm_final
+      lm.final.logSize
     , newdata = dat_pred
     , interval = "prediction"
     )
@@ -525,6 +619,29 @@ dat_pred %>% print(n = Inf, width = Inf)
 ```
 
 ### Solution
+```{R}
+# predict new observations, convert to data frame
+dat_pred_logSize = dat_pred %>%
+  mutate(Size_sqft = log10(Size_sqft))
+
+lm_pred <-
+  as.data.frame(
+    predict(
+      lm.final.logSize
+    , newdata = dat_pred_logSize
+    , interval = "prediction"
+    )
+  ) %>%
+  mutate(
+    # add column of actual list prices
+    PriceListK = dat_pred$PriceListK_true
+  )
+lm_pred
+
+# attributes of the three predicted observations
+dat_pred %>% print(n = Inf, width = Inf)
+```
+
 
 [answer]
 
