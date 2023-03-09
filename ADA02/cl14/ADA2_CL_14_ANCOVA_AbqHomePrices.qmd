@@ -1,6 +1,6 @@
 ---
 title:  "ADA2: Class 14, Ch 07b, Analysis of Covariance"
-author: Your Name
+author: sina mokhtar
 date:   last-modified
 description: |
   [Advanced Data Analysis 2](https://StatAcumen.com/teach/ada12,
@@ -92,7 +92,8 @@ For example, there are only a couple `TypeSale` that are common enough to model;
 ```{R}
 library(erikmisc)
 library(tidyverse)
-
+library(ggplot2)
+library(dplyr)
 # First, download the data to your computer,
 #   save in the same folder as this Rmd file.
 
@@ -111,7 +112,6 @@ dat_abq <-
     id, everything()
     , -Address, -YearBuilt
   )
-
 head(dat_abq)
 
 ## RETURN HERE TO SUBSET THE DATA
@@ -119,7 +119,11 @@ head(dat_abq)
 dat_abq <-
   dat_abq %>%
   filter(
-    TRUE    # (X <= z)  # keep observations where variable X <= value z
+    TypeSale %in% c("APARTMENT" , "HOUSE")
+    #, !id %in% c(120, 130, 50)# (X <= z)  # keep observations where variable X <= value z
+  ) %>%
+  mutate(
+    TypeSale = factor(TypeSale)
   )
 # note, if you remove a level from a categorical variable, then run factor() again
 
@@ -130,7 +134,36 @@ dat_abq <-
 
 
 
-str(dat_abq)
+summary(dat_abq)
+#filter(dat_abq, id == 21)
+```
+
+
+
+
+```{R fig.height = 10, fig.width=10, warning=F}
+library(ggplot2)
+library(GGally)
+#ggpairs(dat_abq[,c("TypeSale", "PriceList", "Beds", "Baths", "Size_sqft")])
+ggpairs(dat_abq %>% dplyr::select(everything(), -id, -Baths), mapping = ggplot2::aes(color=TypeSale, alpha=.5))
+dat_abq_reduced = dat_abq %>% dplyr::select(everything(), -Baths, -LotSize) %>% na.omit()
+
+ggpairs(dat_abq_reduced %>% dplyr::select(everything(), -id), mapping = ggplot2::aes(color=TypeSale, alpha=.5))
+
+```
+
+
+
+```{R}
+cor(dat_abq_reduced %>% dplyr::select(everything(), -id, -TypeSale))
+ggplot(data=dat_abq,
+       aes(x=Size_sqft,
+           y=PriceList,
+           color=TypeSale,
+           label=id))+
+  geom_point() +
+  geom_text(alpha = .5,
+            nudge_x = 0.3)
 ```
 
 
@@ -143,24 +176,45 @@ If so, what transformation is recommended from the model diagnostic plots (Box-C
 
 
 ### Solution
-
+Yes Since Zero is in the 95% interval of Box-Cox plot we do log transformation
 [answer]
+```{R}
+library(car)
+full.model.lm = lm(
+  PriceList ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
+  data = dat_abq_reduced)
+summary(full.model.lm)
+#car::Anova(full.model.lm, type=3)
+```
+```{r fig.height = 3,  fig.width =5}
+e_plot_lm_diagostics(full.model.lm)
+```
+
+
 
 ```{R}
-dat_abq <-
-  dat_abq %>%
+dat_abq_trans <-
+  dat_abq_reduced %>%
   mutate(
     # Price in units of $1000
-    PriceListK = PriceList / 1000
+    PriceListK = (PriceList / 1000)
 
     # SOLUTION
   ) %>%
   select(
     -PriceList
   )
-
-str(dat_abq)
+str(dat_abq_trans)
+full.model.log = lm(
+  log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
+  data = dat_abq_trans)
 ```
+
+```{r fig.height = 3,  fig.width =5}
+e_plot_lm_diagostics(full.model.log)
+```
+
+
 
 ## __(2 p)__ (Step 4) Remove extremely influential observations.
 
@@ -171,13 +225,26 @@ If an observation is highly influential, then it's unusual.
 
 ```{R}
 ## Remove influential observation
-  dat_abq <-
-    dat_abq %>%
-    filter(
-      TRUE   # !(id  %in% c( ... ))
+dat_abq_rem_influen[37,]
+  dat_abq_rem_influen <-
+    dat_abq_trans %>%
+    dplyr::filter(
+      !(id  %in% c(120, 143, 130, 32, 50, 134, 140)),
+      PriceListK < 400,
+      Size_sqft < 6000,
+      Beds < 5,
+      DaysListed < 400
     )
 
   # SOLUTION
+full.model.log = lm(
+  log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2, 
+  data = dat_abq_rem_influen)
+```
+
+
+```{r fig.height = 5,  fig.width =10}
+e_plot_lm_diagostics(full.model.log)
 
 ```
 
@@ -189,20 +256,20 @@ Create a subset of the data for building the model,
 
 ```{R}
 # remove observations with NAs
-dat_abq <-
-  dat_abq %>%
+dat_abq_rem_influen <-
+  dat_abq_rem_influen %>%
   na.omit()
 
 # the data subset we will use to build our model
 dat_sub <-
-  dat_abq %>%
+  dat_abq_rem_influen %>%
   filter(
     DaysListed > 0
   )
 
 # the data subset we will predict from our model
 dat_pred <-
-  dat_abq %>%
+  dat_abq_rem_influen %>%
   filter(
     DaysListed == 0
   ) %>%
@@ -229,7 +296,7 @@ p <-
   , upper = list(continuous = "cor")
   , progress = FALSE
   )
-#print(p)
+print(p)
 ```
 
 There are clearly some unusual observations.
@@ -250,6 +317,17 @@ Discuss the observed correlations or other outstanding features in the data.
 
 Features of data:
 
+```{R}
+names(dat_sub)
+ggplot(data=dat_sub,
+       aes(x=YearBuilt_1900,
+           y=PriceListK,
+           color=TypeSale,
+           label=id))+
+  geom_point() +
+  geom_text(alpha = .5,
+            nudge_x = 0.3)
+```
 
 
 
@@ -282,7 +360,7 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
   ## SOLUTION
   lm_full <-
     lm(
-      PriceListK ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2
+      log(PriceListK) ~ (TypeSale + Beds + Size_sqft + DaysListed + YearBuilt_1900)^2
     , data = dat_sub
     )
   #lm_full <-
@@ -291,7 +369,6 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
   #  , data = dat_sub
   #  )
   lm_full
-  library(car)
   try(Anova(lm_full, type=3))
   ## Note that this doesn't work because APARTMENTs only have 1 bed and 1 bath.
   ## There isn't a second level of bed or bath to estimate the interaction.
@@ -301,7 +378,6 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
       lm_full
     , . ~ . - TypeSale:Beds
     )
-  library(car)
   try(Anova(lm_full, type=3))
 ```
 
@@ -309,7 +385,7 @@ Note that the formula below `y ~ (x1 + x2 + x3)^2` expands into all main effects
 ```{R, fig.height = 3, fig.width = 10}
 ## Uncomment this line when you're ready to assess the model assumptions
 # plot diagnostics
-#e_plot_lm_diagostics(lm_full)
+e_plot_lm_diagostics(lm_full)
 
 # List the row numbers with id numbers
 #   The row numbers appear in the residual plots.
@@ -323,7 +399,7 @@ What are the primary issues in the original model?
 ### Solution
 
 [answer]
-
+The 
 
 
 
