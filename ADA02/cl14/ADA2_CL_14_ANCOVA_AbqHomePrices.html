@@ -212,7 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>── Attaching packages ─────────────────────────────────────── erikmisc 0.1.18 ──</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ tibble 3.1.8      ✔ dplyr  1.0.10</code></pre>
+<pre><code>✔ tibble 3.1.7      ✔ dplyr  1.0.10</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Conflicts ─────────────────────────────────────────── erikmisc_conflicts() ──
@@ -225,13 +225,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2
-──</code></pre>
+<pre><code>── Attaching packages
+───────────────────────────────────────
+tidyverse 1.3.2 ──</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ ggplot2 3.4.1     ✔ purrr   1.0.1
-✔ tidyr   1.3.0     ✔ stringr 1.5.0
-✔ readr   2.1.3     ✔ forcats 1.0.0
+<pre><code>✔ ggplot2 3.4.0     ✔ purrr   1.0.1
+✔ tidyr   1.2.1     ✔ stringr 1.5.0
+✔ readr   2.1.2     ✔ forcats 0.5.2
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()</code></pre>
@@ -269,15 +270,15 @@ dbl (7): PriceList, Beds, Baths, Size_sqft, LotSize, YearBuilt, DaysListed
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat_abq)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 9
-     id TypeSale  PriceList  Beds Baths Size_sqft LotSize DaysListed YearBuilt…¹
-  &lt;int&gt; &lt;fct&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
-1     1 HOUSE        186900     3     2      1305    6969          0          54
-2     2 APARTMENT    305000     1     1      2523    6098          0          48
-3     3 APARTMENT    244000     1     1      2816    6098          0          89
-4     4 CONDO        108000     3     2      1137      NA          0          96
-5     5 CONDO         64900     2     1      1000      NA          1          85
-6     6 HOUSE        275000     3     3      2022    6098          1          52
-# … with abbreviated variable name ¹​YearBuilt_1900</code></pre>
+     id TypeSale  PriceList  Beds Baths Size_sqft LotSize DaysListed
+  &lt;int&gt; &lt;fct&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
+1     1 HOUSE        186900     3     2      1305    6969          0
+2     2 APARTMENT    305000     1     1      2523    6098          0
+3     3 APARTMENT    244000     1     1      2816    6098          0
+4     4 CONDO        108000     3     2      1137      NA          0
+5     5 CONDO         64900     2     1      1000      NA          1
+6     6 HOUSE        275000     3     3      2022    6098          1
+# … with 1 more variable: YearBuilt_1900 &lt;dbl&gt;</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## RETURN HERE TO SUBSET THE DATA</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -824,8 +825,8 @@ consider setting type = 'predictor'; see ?vif</code></pre>
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-4.png" class="img-fluid" width="960"></p>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning in e_plot_lm_diagostics(lm_full): Note: Collinearity plot unreliable
-for predictors that also have interactions in the model.</code></pre>
+<pre><code>Warning in e_plot_lm_diagostics(lm_full): Note: Collinearity plot unreliable for
+predictors that also have interactions in the model.</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="ADA2_CL_14_ANCOVA_AbqHomePrices_files/figure-html/unnamed-chunk-14-5.png" class="img-fluid" width="960"></p>
@@ -1324,7 +1325,7 @@ for House, on average the log(PriceListK) would be (-0.361+0.21) if all other va
 <span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
 <span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
 <span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
-<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>      lm_final</span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>      lm.final</span>
 <span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
 <span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
 <span id="cb101-8"><a href="#cb101-8" aria-hidden="true" tabindex="-1"></a>    )</span>
@@ -1366,7 +1367,72 @@ for House, on average the log(PriceListK) would be (-0.361+0.21) if all other va
 </div>
 <section id="solution-5" class="level3">
 <h3 class="anchored" data-anchor-id="solution-5">Solution</h3>
-<p>[answer]</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict new observations, convert to data frame</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
+<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
+<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a>      lm.final</span>
+<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
+<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
+<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb107-9"><a href="#cb107-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb107-10"><a href="#cb107-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb107-11"><a href="#cb107-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add column of actual list prices</span></span>
+<span id="cb107-12"><a href="#cb107-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> dat_pred<span class="sc">$</span>PriceListK_true</span>
+<span id="cb107-13"><a href="#cb107-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb107-14"><a href="#cb107-14" aria-hidden="true" tabindex="-1"></a>lm_pred</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit      lwr      upr PriceListK
+1 2.188175 1.944126 2.432224      186.9
+2 2.250483 2.001429 2.499536      305.0
+3 2.076528 1.820203 2.332853      244.0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="co"># on "thousands of dollars" scale</span></span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a><span class="co">#10^lm_pred</span></span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>pre.df <span class="ot">=</span> lm_pred <span class="sc">%&gt;%</span></span>
+<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="dv">10</span><span class="sc">^</span>fit,</span>
+<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">lwr =</span> <span class="dv">10</span><span class="sc">^</span>lwr,</span>
+<span id="cb109-6"><a href="#cb109-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">upr =</span> <span class="dv">10</span><span class="sc">^</span>upr)</span>
+<span id="cb109-7"><a href="#cb109-7" aria-hidden="true" tabindex="-1"></a>dat_pred<span class="sc">$</span>PriceListK <span class="ot">=</span> pre.df<span class="sc">$</span>fit</span>
+<span id="cb109-8"><a href="#cb109-8" aria-hidden="true" tabindex="-1"></a>dat_predfinal <span class="ot">=</span> pre.df</span>
+<span id="cb109-9"><a href="#cb109-9" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes of the three predicted observations</span></span></code></pre></div>
+</div>
+<p>[answer] for a with beds and size_sqft and yearBuild we predict the 154.2321451 PriceListK with interaval (87.9276911, 270.5354172 ).<br>
+for a with beds and size_sqft and yearBuild we predict the 178.0256314 PriceListK with interaval (100.3295663, 315.8901868 ). for a with beds and size_sqft and yearBuild we predict the 119.2691104 PriceListK with interaval (87.9276911, 215.2053479 ).</p>
+<p>the model did a good job on prediction the first observation (apartment) price with just 32.67 error. for the second observation it predict price 178 with true price of 305. however the prediction is inside the interval but its close to upper interval. for the third observation the model could not predict well. it predict the price 119 but true price is almost two time bigger and is not in the 95% interval. overall it seems the model can not predict the price precisely.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict new observations, convert to data frame</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>lm_pred <span class="ot">&lt;-</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(</span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a>      lm.final.logSize</span>
+<span id="cb110-6"><a href="#cb110-6" aria-hidden="true" tabindex="-1"></a>    , <span class="at">newdata =</span> dat_pred</span>
+<span id="cb110-7"><a href="#cb110-7" aria-hidden="true" tabindex="-1"></a>    , <span class="at">interval =</span> <span class="st">"prediction"</span></span>
+<span id="cb110-8"><a href="#cb110-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb110-9"><a href="#cb110-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb110-10"><a href="#cb110-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb110-11"><a href="#cb110-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add column of actual list prices</span></span>
+<span id="cb110-12"><a href="#cb110-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceListK =</span> dat_pred<span class="sc">$</span>PriceListK_true</span>
+<span id="cb110-13"><a href="#cb110-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb110-14"><a href="#cb110-14" aria-hidden="true" tabindex="-1"></a>lm_pred</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit      lwr      upr PriceListK
+1 2.196173 1.956783 2.435563      186.9
+2 2.252520 2.008123 2.496917      305.0
+3 2.101434 1.850131 2.352737      244.0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="co"># on "thousands of dollars" scale</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="co">#10^lm_pred</span></span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>pre.df <span class="ot">=</span> lm_pred <span class="sc">%&gt;%</span></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="dv">10</span><span class="sc">^</span>fit,</span>
+<span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">lwr =</span> <span class="dv">10</span><span class="sc">^</span>lwr,</span>
+<span id="cb112-6"><a href="#cb112-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">upr =</span> <span class="dv">10</span><span class="sc">^</span>upr)</span>
+<span id="cb112-7"><a href="#cb112-7" aria-hidden="true" tabindex="-1"></a>dat_pred<span class="sc">$</span>PriceListK <span class="ot">=</span> pre.df<span class="sc">$</span>fit</span>
+<span id="cb112-8"><a href="#cb112-8" aria-hidden="true" tabindex="-1"></a>dat_predfinal  <span class="ot">=</span> pre.df</span>
+<span id="cb112-9"><a href="#cb112-9" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes of the three predicted observations</span></span></code></pre></div>
+</div>
+<p>The model with log(Size_sqft) in prediction did slightly a better job however overall it did not predict precisely either.</p>
 </section>
 </section>
 </section>

@@ -601,7 +601,7 @@ How well do you expect this model to predict? Justify your answer.
 lm_pred <-
   as.data.frame(
     predict(
-      lm.final.logSize
+      lm.final
     , newdata = dat_pred
     , interval = "prediction"
     )
@@ -621,14 +621,11 @@ dat_pred %>% print(n = Inf, width = Inf)
 ### Solution
 ```{R}
 # predict new observations, convert to data frame
-dat_pred_logSize = dat_pred %>%
-  mutate(Size_sqft = log10(Size_sqft))
-
 lm_pred <-
   as.data.frame(
     predict(
-      lm.final.logSize
-    , newdata = dat_pred_logSize
+      lm.final
+    , newdata = dat_pred
     , interval = "prediction"
     )
   ) %>%
@@ -637,11 +634,52 @@ lm_pred <-
     PriceListK = dat_pred$PriceListK_true
   )
 lm_pred
-
+# on "thousands of dollars" scale
+#10^lm_pred
+pre.df = lm_pred %>%
+  mutate(fit = 10^fit,
+         lwr = 10^lwr,
+         upr = 10^upr)
+dat_pred$PriceListK = pre.df$fit
+dat_predfinal = pre.df
 # attributes of the three predicted observations
-dat_pred %>% print(n = Inf, width = Inf)
 ```
 
 
 [answer]
+for a  `r dat_predfinal$TypeSale[1]` with `r dat_predfinal$Beds[1]` beds and `r dat_predfinal$Size_sqft[1]`  size_sqft and `r dat_predfinal$YearBuilt_1900[1]` yearBuild we predict the `r pre.df$fit[1]` PriceListK with interaval (`r pre.df$lwr[1]`, `r pre.df$upr[1]` ).   
+for a  `r dat_predfinal$TypeSale[2]` with `r dat_predfinal$Beds[2]` beds and `r dat_predfinal$Size_sqft[2]`  size_sqft and `r dat_predfinal$YearBuilt_1900[2]` yearBuild we predict the `r pre.df$fit[2]` PriceListK with interaval (`r pre.df$lwr[2]`, `r pre.df$upr[2]` ). 
+for a  `r dat_predfinal$TypeSale[3]` with `r dat_predfinal$Beds[3]` beds and `r dat_predfinal$Size_sqft[3]`  size_sqft and `r dat_predfinal$YearBuilt_1900[3]` yearBuild we predict the `r pre.df$fit[3]` PriceListK with interaval (`r pre.df$lwr[1]`, `r pre.df$upr[3]` ). 
+
+the model did a good job on prediction the first observation (apartment) price with just 32.67 error. for the second observation it predict price 178 with true price of 305. however the prediction is inside the interval but its close to upper interval. for the third observation the model could not predict well. it predict the price 119 but true price is almost two time bigger and is not in the 95% interval. overall it seems the model can not predict the price precisely.  
+
+
+
+```{R}
+# predict new observations, convert to data frame
+lm_pred <-
+  as.data.frame(
+    predict(
+      lm.final.logSize
+    , newdata = dat_pred
+    , interval = "prediction"
+    )
+  ) %>%
+  mutate(
+    # add column of actual list prices
+    PriceListK = dat_pred$PriceListK_true
+  )
+lm_pred
+# on "thousands of dollars" scale
+#10^lm_pred
+pre.df = lm_pred %>%
+  mutate(fit = 10^fit,
+         lwr = 10^lwr,
+         upr = 10^upr)
+dat_pred$PriceListK = pre.df$fit
+dat_predfinal  = pre.df
+# attributes of the three predicted observations
+```
+The model with log(Size_sqft) in prediction did slightly a better job however overall it did not predict precisely either. 
+
 
